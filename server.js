@@ -5,6 +5,7 @@ var app = express();
 
 app.config = require('./config');
 app.services = require('./services')(app);
+app.middleware = require('./middleware')(app);
 app.controllers = require('./controllers')(app);
 
 app.use(function(req, res, next) {
