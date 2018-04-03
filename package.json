@@ -7,8 +7,10 @@
     "async": "2.6.0",
     "bignumber.js": "6.0.0",
     "express": "4.16.3",
+    "primus": "7.1.1",
     "request": "2.85.0",
-    "underscore": "1.8.3"
+    "underscore": "1.8.3",
+    "uws": "9.14.0"
   },
   "devDependencies": {},
   "scripts": {

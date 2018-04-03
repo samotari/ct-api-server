@@ -1,10 +1,17 @@
 'use strict';
 
+var pkg = require('./package.json');
+
+// Set the process title so that we can properly kill the process.
+// Change hyphens ("-") to underscores ("_").
+process.title = pkg.name.replace(/-/g, '_');
+
 var express = require('express');
 var app = express();
 
 app.config = require('./config');
 app.services = require('./services')(app);
+app.providers = require('./providers')(app);
 app.middleware = require('./middleware')(app);
 app.controllers = require('./controllers')(app);
 
@@ -46,3 +53,5 @@ app.use(function(error, req, res, next) {
 app.server = app.listen(app.config.port, app.config.host, function() {
 	console.log('Server listening at ' + app.config.host + ':' + app.config.port);
 });
+
+app.sockets = require('./sockets')(app);
