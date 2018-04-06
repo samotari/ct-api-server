@@ -9,4 +9,18 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
+	insight: {
+		bitcoin: {
+			baseUrl: 'https://bitcore2.trezor.io',
+		},
+		bitcoinTestnet: {
+			baseUrl: 'https://testnet-bitcore2.trezor.io',
+		},
+		litecoin: {
+			baseUrl: 'https://ltc-bitcore2.trezor.io',
+		},
+		litecoinTestnet: {
+			baseUrl: 'https://testnet.litecore.io',
+		},
+	},
 };

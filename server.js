@@ -10,6 +10,7 @@ var express = require('express');
 var app = express();
 
 app.config = require('./config');
+app.queues = require('./queues')(app);
 app.services = require('./services')(app);
 app.providers = require('./providers')(app);
 app.middleware = require('./middleware')(app);
@@ -50,8 +51,14 @@ app.use(function(error, req, res, next) {
 	next();
 });
 
-app.server = app.listen(app.config.port, app.config.host, function() {
-	console.log('Server listening at ' + app.config.host + ':' + app.config.port);
+app.queues.onStart.push({
+	fn: function(done) {
+		app.server = app.listen(app.config.port, app.config.host, function() {
+			console.log('Server listening at ' + app.config.host + ':' + app.config.port);
+			done();
+		});
+		app.sockets = require('./sockets')(app);
+	}
 });
 
-app.sockets = require('./sockets')(app);
+app.queues.onStart.resume();

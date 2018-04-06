@@ -5,6 +5,7 @@ module.exports = function(app) {
 	var _ = require('underscore');
 	var Primus = require('primus');
 	var querystring = require('querystring');
+	var WebSocket = require('uws');
 	var primus = new Primus(app.server, app.config.primus);
 	var subscriptions = {};
 
@@ -44,18 +45,20 @@ module.exports = function(app) {
 
 	var handlers = {
 		'address-balance-updates?': {
-			subscribe: function(channel) {
-				// var params = querystring.parse(channel.split('?')[1]);
-				// app.services['<some service>'].listenToAddress(params.address, params.method, function(data) {
-				// 	broadcast(channel, data);
-				// });
+			subscribe: function(channel, spark) {
+				var params = querystring.parse(channel.split('?')[1]);
+				var method = params.method;
+				var address = params.address;
+				var subscriptionId = app.services.insight.listenToAddress(method, address, function(data) {
+					broadcast(channel, data);
+				});
+				spark.insight = spark.insight || {};
+				spark.insight[channel] = subscriptionId;
 			},
-			unsubscribe: function(channel) {
-				// if (hasSubscriptions(channel)) return;
-				// var params = querystring.parse(channel.split('?')[1]);
-				// app.services['<some service>'].stopListeningToAddress(params.address, params.method, function(data) {
-				// 	broadcast(channel, data);
-				// });
+			unsubscribe: function(channel, spark) {
+				spark.insight = spark.insight || {};
+				var subscriptionId = spark.insight[channel];
+				app.services.insight.unsubscribe(subscriptionId);
 			},
 		}
 	};
@@ -72,7 +75,7 @@ module.exports = function(app) {
 		}
 		_.each(handlers, function(handler, searchText) {
 			if (handler.subscribe && channel.substr(0, searchText.length) === searchText) {
-				handler.subscribe(channel);
+				handler.subscribe(channel, spark);
 				// Break the _.each loop.
 				return false;
 			}
@@ -80,9 +83,9 @@ module.exports = function(app) {
 	};
 
 	var unsubscribeFromAll = function(spark) {
-		subscriptions = _.mapObject(subscriptions, function(sparks) {
-			delete sparks[spark.id];
-			return sparks;
+		var channels = _.keys(subscriptions);
+		_.each(channels, function(channel) {
+			unsubscribe(channel, spark);
 		});
 	};
 
@@ -92,7 +95,7 @@ module.exports = function(app) {
 		delete subscriptions[channel][spark.id];
 		_.each(handlers, function(handler, searchText) {
 			if (handler.unsubscribe && channel.substr(0, searchText.length) === searchText) {
-				handler.unsubscribe(channel);
+				handler.unsubscribe(channel, spark);
 				// Break the _.each loop.
 				return false;
 			}
@@ -105,6 +108,7 @@ module.exports = function(app) {
 
 	// Send data to all sockets currently subscribed to a specific channel.
 	var broadcast = function(channel, data) {
+		console.log('broadcast', channel, data);
 		_.each(subscriptions[channel], function(spark) {
 			spark.write({
 				channel: channel,
