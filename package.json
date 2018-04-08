@@ -13,7 +13,15 @@
     "underscore": "1.8.3",
     "uws": "9.14.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "4.1.2",
+    "grunt": "1.0.2",
+    "grunt-env": "0.4.4",
+    "grunt-mocha-test": "0.13.3",
+    "load-grunt-config": "0.19.2",
+    "mocha": "5.1.0",
+    "time-grunt": "1.4.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
