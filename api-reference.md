@@ -31,7 +31,7 @@ GET | /api/v1/exchange-rates
 
 Example using cURL:
 ```
-curl -X GET -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:3000/api/v1/exchange-rates?currency=LTC
+curl -X GET -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:3600/api/v1/exchange-rates?currency=LTC
 ```
 
 On success, the response will look something like this:
@@ -44,3 +44,23 @@ On success, the response will look something like this:
 	"XMR":"0.77434730189459866408"
 }
 ```
+### Status
+
+Check the status of the application server API.
+
+Verb | URI
+--- | ---
+GET | /api/v1/status
+
+```
+curl -X GET -H "Accept: application/json" -H "Content-Type: application/json" http://localhost:3600/api/v1/status
+```
+
+On success:
+```json
+{
+	"status":"OK"
+}
+```
+
+
