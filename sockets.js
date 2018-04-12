@@ -3,6 +3,7 @@
 module.exports = function(app) {
 
 	var _ = require('underscore');
+	var async = require('async');
 	var Primus = require('primus');
 	var querystring = require('querystring');
 	var WebSocket = require('uws');
@@ -60,6 +61,26 @@ module.exports = function(app) {
 				var subscriptionId = spark.insight[channel];
 				app.services.insight.unsubscribe(subscriptionId);
 			},
+		},
+		'get-monero-transactions?': {
+			subscribe: function(channel) {
+				var params = querystring.parse(channel.split('?')[1]);
+				async.whilst(
+					function() { return hasSubscriptions(channel); },
+					function(callback) {
+						app.services.xmrchain.getTransactions(params.networkName, function(error, data) {
+							if (error) {
+								console.log(error);
+								_.delay(callback, 30 * 1000/* 30 seconds */);
+								return;
+							}
+							cache[channel] = data;
+							broadcast(channel, data);
+							_.delay(callback, 5 * 1000/* 5 seconds */);
+						})
+					}
+				);
+			}
 		}
 	};
 
