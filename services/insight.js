@@ -118,6 +118,7 @@ module.exports = function(app) {
 			return subscriptionId;
 		},
 		unsubscribe: function(subscriptionId) {
+			if (!subscriptionId) return;
 			var method = subscriptionId.split(':')[0];
 			var instance = getInstance(method);
 			instance.unsubscribe(subscriptionId);

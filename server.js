@@ -7,7 +7,7 @@ var pkg = require('./package.json');
 process.title = pkg.name.replace(/-/g, '_');
 
 var express = require('express');
-var app = express();
+var app = module.exports = express();
 
 app.config = require('./config');
 app.queues = require('./queues')(app);
@@ -51,14 +51,12 @@ app.use(function(error, req, res, next) {
 	next();
 });
 
-app.queues.onStart.push({
-	fn: function(done) {
-		app.server = app.listen(app.config.port, app.config.host, function() {
-			console.log('Server listening at ' + app.config.host + ':' + app.config.port);
-			done();
-		});
-		app.sockets = require('./sockets')(app);
-	}
+app.onStart(function(done) {
+	app.server = app.listen(app.config.port, app.config.host, function() {
+		console.log('Server listening at ' + app.config.host + ':' + app.config.port);
+		done();
+	});
+	app.sockets = require('./sockets')(app);
 });
 
 app.queues.onStart.resume();
