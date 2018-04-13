@@ -1,9 +1,15 @@
 {
 	"test": [
-		"test:integration"
+		"env:test",
+		"mochaTest:unit",
+		"mochaTest:integration"
 	],
 	"test:integration": [
 		"env:test",
 		"mochaTest:integration"
+	],
+	"test:unit": [
+		"env:test",
+		"mochaTest:unit"
 	]
 }
