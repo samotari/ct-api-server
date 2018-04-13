@@ -67,7 +67,14 @@ module.exports = function(app) {
 
 	app.onStart(function(done) {
 		async.each(instances, function(instance, next) {
-			instance.connect(next);
+			instance.connect(function(error) {
+				if (error) {
+					console.error('Failed to connect to insight API (' + instance.method + ')', error);
+				} else {
+					console.log('Connected to insight API (' + instance.method + ')');
+				}
+			});
+			next();
 		}, done);
 	});
 
