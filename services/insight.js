@@ -75,8 +75,7 @@ module.exports = function(app) {
 		return instances[method];
 	};
 
-	var getAmountReceivedByAddressFromTxData = function(address, txData) {
-
+	var filterTxOutputsByAddress = function(txData, address) {
 		/*
 			{
 				txid: '<TRANSACTION ID>',
@@ -88,29 +87,30 @@ module.exports = function(app) {
 				isRBF: false
 			}
 		*/
-		return _.chain(txData.vout).map(function(vout) {
-			var _address = _.chain(vout).keys().first().value();
-			var amount = _.chain(vout).values().first().value();
-			return {
-				address: _address,
-				amount: amount,
-			};
-		}).filter(function(vout) {
-			return vout.address === address;
-		}).pluck('amount').reduce(function(amount, memo) {
+		return Array.prototype.concat.apply([], _.chain(txData.vout).filter(function(vout) {
+			return !!vout[address];
+		}).map(function(vout) {
+			return _.values(vout);
+		}).value());
+	};
+
+	var sumTxOutputs = function(outputs) {
+		return _.chain(outputs).reduce(function(amount, memo) {
 			return amount + memo;
 		}, 0).value();
 	};
 
 	return {
 		instances: instances,
+		filterTxOutputsByAddress: filterTxOutputsByAddress,
+		sumTxOutputs: sumTxOutputs,
 		listenToAddress: function(method, address, onData) {
 			var instance = getInstance(method);
 			var subscriptionId = instance.subscribe('inv/tx', function(data) {
-				var amountReceived = getAmountReceivedByAddressFromTxData(address, data);
-				if (amountReceived > 0) {
+				var outputs = filterTxOutputsByAddress(data, address);
+				if (outputs.length > 0) {
 					var tx = {
-						amount_received: amountReceived,
+						amount_received: sumTxOutputs(outputs),
 					};
 					onData(tx);
 				}
