@@ -5,6 +5,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 var _ = require('underscore');
+var async = require('async');
 var app = require('../');
 var Client = require('./client');
 
@@ -30,6 +31,47 @@ var manager = module.exports = {
 		});
 
 		return new Client(options);
+	},
+
+	socketClient: function(options) {
+
+		options = _.defaults(options || {}, {
+			host: app.config.host,
+			port: app.config.port
+		});
+
+		var uri = 'http://' + options.host + ':' + options.port;
+		var socket = new app.sockets.primus.Socket(uri);
+
+		return {
+			subscribe: function(channel, done) {
+				socket.write({
+					action: 'join',
+					channel: channel,
+				});
+				socket.id(function(id) {
+					async.until(function() {
+						return !!app.sockets.subscriptions[channel] && !!app.sockets.subscriptions[channel][id];
+					}, function(next) {
+						_.delay(next, 10);
+					}, done);
+				});
+			},
+			unsubscribe: function(channel, done) {
+				socket.write({
+					action: 'leave',
+					channel: channel,
+				});
+				socket.id(function(id) {
+					async.until(function() {
+						return !app.sockets.subscriptions[channel] || !app.sockets.subscriptions[channel][id];
+					}, function(next) {
+						_.delay(next, 10);
+					}, done);
+				});
+			},
+			socket: socket,
+		};
 	},
 };
 
