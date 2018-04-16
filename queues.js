@@ -37,11 +37,11 @@ module.exports = function(app) {
 		// Resume the on-ready queue.
 		queues.onReady.resume();
 		queues.onStart = null;
-		console.log('app started');
+		app.log('app started');
 	};
 
 	queues.onStart.error = function(error) {
-		console.log(error);
+		app.error(error);
 	};
 
 	process.on('SIGINT', function() {

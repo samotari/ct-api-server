@@ -11,14 +11,11 @@ module.exports = function(app) {
 	var subscriptions = {};
 
 	primus.on('connection', function(spark) {
-		console.log('client connected');
 		spark.once('end', function() {
-			console.log('spark.end');
 			spark.removeAllListeners('data');
 			unsubscribeFromAll(spark);
 		});
 		spark.on('data', function(data) {
-			console.log('spark.data', data);
 			var action = data.action;
 			switch (action) {
 				case 'join':
@@ -70,7 +67,7 @@ module.exports = function(app) {
 					function(callback) {
 						app.services.xmrchain.getTransactions(params.networkName, function(error, data) {
 							if (error) {
-								console.log(error);
+								app.error(error);
 								_.delay(callback, 30 * 1000/* 30 seconds */);
 								return;
 							}
@@ -85,7 +82,6 @@ module.exports = function(app) {
 	};
 
 	var subscribe = function(channel, spark) {
-		console.log('client subscribed to "' + channel + '"');
 		subscriptions[channel] = subscriptions[channel] || {};
 		subscriptions[channel][spark.id] = spark;
 		if (cache[channel]) {
@@ -111,7 +107,6 @@ module.exports = function(app) {
 	};
 
 	var unsubscribe = function(channel, spark) {
-		console.log('client unsubscribed from "' + channel + '"');
 		subscriptions[channel] = subscriptions[channel] || {};
 		delete subscriptions[channel][spark.id];
 		_.each(handlers, function(handler, searchText) {
@@ -129,7 +124,6 @@ module.exports = function(app) {
 
 	// Send data to all sockets currently subscribed to a specific channel.
 	var broadcast = function(channel, data) {
-		console.log('broadcast', channel, data);
 		_.each(subscriptions[channel], function(spark) {
 			spark.write({
 				channel: channel,
@@ -141,7 +135,6 @@ module.exports = function(app) {
 	(function getExchangeRates() {
 		app.providers.exchangeRates(function(error, rates) {
 			if (error) {
-				console.log(error);
 				_.delay(getExchangeRates, 30 * 1000/* 30 seconds */);
 				return;
 			}

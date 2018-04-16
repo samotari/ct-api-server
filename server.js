@@ -31,7 +31,7 @@ app.use(function(error, req, res, next) {
 	if (error) {
 
 		if (!error.status) {
-			console.error(error);
+			app.error(error);
 			error.status = 500;
 			error.message = null;
 		}
@@ -51,9 +51,21 @@ app.use(function(error, req, res, next) {
 	next();
 });
 
+app.log = function(message) {
+	var timestamp = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '');
+	console.log('[ ' + timestamp + ' ] ' + message);
+};
+
+app.error = function(error) {
+	if (!(error instanceof Error)) {
+		error = new Error(error);
+	}
+	console.error(error.stack);
+};
+
 app.onStart(function(done) {
 	app.server = app.listen(app.config.port, app.config.host, function() {
-		console.log('Server listening at ' + app.config.host + ':' + app.config.port);
+		app.log('Server listening at ' + app.config.host + ':' + app.config.port);
 		done();
 	});
 	app.sockets = require('./sockets')(app);
