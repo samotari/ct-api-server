@@ -28,7 +28,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Learn-by-doing/crypto-terminal-api-server.git"
+    "url": "git+https://github.com/samotari/crypto-terminal-api-server.git"
   },
   "author": {
     "name": "Charles Hill",
@@ -42,7 +42,7 @@
   ],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/Learn-by-doing/crypto-terminal-api-server/issues"
+    "url": "https://github.com/samotari/crypto-terminal-api-server/issues"
   },
-  "homepage": "https://github.com/Learn-by-doing/crypto-terminal-api-server#readme"
+  "homepage": "https://github.com/samotari/crypto-terminal-api-server#readme"
 }
