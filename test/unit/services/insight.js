@@ -42,7 +42,7 @@ describe('services.insight', function() {
 			];
 
 			_.each(fixtures, function(fixture) {
-				var outputs = app.services.insight.filterTxOutputsByAddress(fixture.txData, fixture.address);
+				var outputs = app.services.insight.bitcoin.filterTxOutputsByAddress(fixture.txData, fixture.address);
 				expect(outputs).to.deep.equal(fixture.outputs);
 			});
 		});
@@ -68,7 +68,7 @@ describe('services.insight', function() {
 			];
 
 			_.each(fixtures, function(fixture) {
-				var sum = app.services.insight.sumTxOutputs(fixture.outputs);
+				var sum = app.services.insight.bitcoin.sumTxOutputs(fixture.outputs);
 				expect(sum).to.equal(fixture.sum);
 			});
 		});
