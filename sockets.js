@@ -51,6 +51,10 @@ module.exports = function(app) {
 		});
 	});
 
+	if (app.config.webRoot) {
+		primus.save(app.config.webRoot + '/primus/primus.js');
+	}
+
 	var cache = {};
 
 	var handlers = {
