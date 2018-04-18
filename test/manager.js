@@ -44,6 +44,13 @@ var manager = module.exports = {
 		var socket = new app.sockets.primus.Socket(uri);
 
 		return {
+			onError: function(cb) {
+				this.socket.on('data', function(data) {
+					if (data.error) {
+						cb(new Error(data.error));
+					}
+				});
+			},
 			subscribe: function(channel, done) {
 				socket.write({
 					action: 'join',
