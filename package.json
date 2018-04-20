@@ -7,9 +7,11 @@
     "async": "2.6.0",
     "bignumber.js": "7.0.1",
     "express": "4.16.3",
+    "mkdirp": "0.5.1",
     "primus": "7.2.0",
     "request": "2.85.0",
     "socket.io-client": "2.1.0",
+    "uglify-js": "3.3.21",
     "underscore": "1.9.0",
     "uws": "9.148.0"
   },
