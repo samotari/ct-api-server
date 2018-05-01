@@ -5,13 +5,13 @@
   "main": "server.js",
   "dependencies": {
     "async": "2.6.0",
-    "bignumber.js": "6.0.0",
+    "bignumber.js": "7.0.1",
     "express": "4.16.3",
-    "primus": "7.1.1",
+    "primus": "7.2.0",
     "request": "2.85.0",
     "socket.io-client": "2.1.0",
-    "underscore": "1.8.3",
-    "uws": "9.14.0"
+    "underscore": "1.9.0",
+    "uws": "9.148.0"
   },
   "devDependencies": {
     "chai": "4.1.2",
@@ -19,7 +19,7 @@
     "grunt-env": "0.4.4",
     "grunt-mocha-test": "0.13.3",
     "load-grunt-config": "0.19.2",
-    "mocha": "5.1.0",
+    "mocha": "5.1.1",
     "socket.io": "2.1.0",
     "time-grunt": "1.4.0"
   },
