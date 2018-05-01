@@ -3,7 +3,6 @@
 var _ = require('underscore');
 var async = require('async');
 var expect = require('chai').expect;
-var Insight = require('../../../../lib/insight');
 var querystring = require('querystring');
 
 var manager = require('../../../manager');
@@ -39,31 +38,24 @@ describe('socket.channels', function() {
 			io.close(done);
 		});
 
+		var method = 'test';
 		var instance;
 		before(function(done) {
-			instance = new Insight({
+			instance = new app.lib.Insight({
 				baseUrl: 'http://localhost:' + port,
 			});
-			instance.method = 'test';
-			instance.connect(function(error) {
-				if (error) {
-					return done(error);
-				}
-				done();
-			});
-			app.services.insight[instance.method] = instance;
+			instance.connect(done);
+			app.services.insight.instances[method] = [instance];
 		});
 
 		after(function() {
-			if (app.services.insight[instance.method]) {
-				delete app.services.insight[instance.method];
-			}
+			delete app.services.insight.instances[method];
 		});
 
 		it('receive data', function(done) {
 
 			var channel = 'address-balance-updates?' + querystring.stringify({
-				method: instance.method,
+				method: method,
 				address: '1234567890',
 			});
 

@@ -11,17 +11,21 @@ var config = module.exports = {
 		pingInterval: 5000,
 	},
 	insight: {
-		bitcoin: {
-			baseUrl: 'https://bitcore2.trezor.io',
-		},
-		bitcoinTestnet: {
-			baseUrl: 'https://testnet-bitcore2.trezor.io',
-		},
-		litecoin: {
-			baseUrl: 'https://ltc-bitcore2.trezor.io',
-		},
-		litecoinTestnet: {
-			baseUrl: 'https://testnet.litecore.io',
-		},
+		bitcoin: [
+			{ baseUrl: 'https://insight.bitpay.com' },
+			{ baseUrl: 'https://bitcore1.trezor.io' },
+			{ baseUrl: 'https://bitcore2.trezor.io' },
+		],
+		bitcoinTestnet: [
+			{ baseUrl: 'https://test-insight.bitpay.com' },
+			{ baseUrl: 'https://testnet-bitcore1.trezor.io' },
+			{ baseUrl: 'https://testnet-bitcore2.trezor.io' },
+		],
+		litecoin: [
+			{ baseUrl: 'https://insight.litecore.io' },
+			{ baseUrl: 'https://ltc-bitcore1.trezor.io' },
+			{ baseUrl: 'https://ltc-bitcore2.trezor.io' },
+		],
+		litecoinTestnet: [],
 	},
 };

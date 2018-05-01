@@ -20,55 +20,54 @@ describe('services.insight', function() {
 		});
 
 		// Only test bitcoin because it's the most likely to have new transactions, quickly.
-		var instances = _.filter(app.services.insight.instances, function(instance) {
-			return instance.method === 'bitcoin';
+		var method = 'bitcoin';
+		var instance;
+		before(function() {
+			instance = _.first(app.services.insight.instances[method]);
 		});
 
-		_.each(instances, function(instance) {
+		it(method, function(done) {
 
-			it(instance.method, function(done) {
+			var receivedData;
+			var subscriptionId = instance.subscribe('inv/tx', function(data) {
+				receivedData = data;
+			});
 
-				var receivedData;
-				var subscriptionId = instance.subscribe('inv/tx', function(data) {
-					receivedData = data;
-				});
+			subscriptions.push({
+				instance: instance,
+				id: subscriptionId,
+			});
 
-				subscriptions.push({
-					instance: instance,
-					id: subscriptionId,
-				});
+			expect(subscriptionId).to.be.a('string');
 
-				expect(subscriptionId).to.be.a('string');
+			async.until(function() { return !!receivedData; }, function(next) {
+				_.delay(next, 10);
+			}, function(error) {
 
-				async.until(function() { return !!receivedData; }, function(next) {
-					_.delay(next, 10);
-				}, function(error) {
+				if (error) {
+					return done(error);
+				}
 
-					if (error) {
-						return done(error);
-					}
-
-					try {
-						expect(receivedData).to.be.an('object');
-						expect(receivedData.txid).to.be.a('string');
-						expect(receivedData.vout).to.be.an('array');
-						_.each(receivedData.vout, function(vout) {
-							expect(vout).to.be.an('object');
-							var addresses = _.keys(vout);
-							_.each(addresses, function(address) {
-								expect(address).to.be.a('string');
-							});
-							var amounts = _.values(vout);
-							_.each(amounts, function(amount) {
-								expect(amount).to.be.a('number');
-							});
+				try {
+					expect(receivedData).to.be.an('object');
+					expect(receivedData.txid).to.be.a('string');
+					expect(receivedData.vout).to.be.an('array');
+					_.each(receivedData.vout, function(vout) {
+						expect(vout).to.be.an('object');
+						var addresses = _.keys(vout);
+						_.each(addresses, function(address) {
+							expect(address).to.be.a('string');
 						});
-					} catch (error) {
-						return done(error);
-					}
+						var amounts = _.values(vout);
+						_.each(amounts, function(amount) {
+							expect(amount).to.be.a('number');
+						});
+					});
+				} catch (error) {
+					return done(error);
+				}
 
-					done();
-				});
+				done();
 			});
 		});
 	});
