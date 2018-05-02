@@ -19,6 +19,9 @@ module.exports = function(app) {
 
 		// Send an error to the socket client.
 		spark.error = function(error) {
+			if (_.isObject(error) && error.message) {
+				error = error.message;
+			}
 			if (!_.isString(error)) {
 				throw new Error('Only call spark.error() with an error string.');
 			}
@@ -63,24 +66,26 @@ module.exports = function(app) {
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
-				if (!app.services.insight[method]) {
-					return spark.error('Unknown insight API (' + method + ')');
+				try {
+					var subscriptionId = app.services.insight.listenToAddress(method, address, function(data) {
+						broadcast(channel, data);
+					});
+				} catch (error) {
+					return spark.error(error);
 				}
-				var subscriptionId = app.services.insight[method].listenToAddress(address, function(data) {
-					broadcast(channel, data);
-				});
 				spark.insight = spark.insight || {};
 				spark.insight[channel] = subscriptionId;
 			},
 			unsubscribe: function(channel, spark) {
 				spark.insight = spark.insight || {};
 				var subscriptionId = spark.insight[channel];
-				if (!subscriptionId || subscriptionId.indexOf(':') === -1) return;
-				var method = subscriptionId.split(':')[0];
-				if (!app.services.insight[method]) {
-					return spark.error('Unknown insight API (' + method + ')');
+				if (subscriptionId) {
+					try {
+						app.services.insight.unsubscribe(subscriptionId);
+					} catch (error) {
+						app.error(error);
+					}
 				}
-				app.services.insight[method].unsubscribe(subscriptionId);
 			},
 		},
 		'get-monero-transactions?': {

@@ -10,6 +10,7 @@ var express = require('express');
 var app = module.exports = express();
 
 app.config = require('./config');
+app.lib = require('./lib');
 app.queues = require('./queues')(app);
 app.services = require('./services')(app);
 app.providers = require('./providers')(app);
