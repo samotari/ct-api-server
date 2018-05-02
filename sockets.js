@@ -54,10 +54,6 @@ module.exports = function(app) {
 		});
 	});
 
-	if (app.config.webRoot) {
-		primus.save(app.config.webRoot + '/primus/primus.js');
-	}
-
 	var cache = {};
 
 	var handlers = {
@@ -174,9 +170,44 @@ module.exports = function(app) {
 		});
 	})();
 
+	var savePrimusClientLibraryToFile = function(filePath, cb) {
+		try {
+			var fs = require('fs');
+			var mkdirp = require('mkdirp');
+			var path = require('path');
+			var UglifyJS = require('uglify-js');
+			var code = primus.library();
+			filePath = path.resolve(filePath);
+			var result = UglifyJS.minify(code);
+			if (result.error) {
+				throw new Error(result.error);
+			}
+			var minified = result.code;
+		} catch (error) {
+			return cb(error);
+		}
+		async.series([
+			function(next) {
+				var dir = path.dirname(filePath);
+				mkdirp(dir, next);
+			},
+			function(next) {
+				fs.writeFile(filePath, minified, next);
+			}
+		], cb);
+	};
+
+	app.onStart(function(done) {
+		if (!app.config.webRoot) return done();
+		var path = require('path');
+		var filePath = path.join(app.config.webRoot, 'primus', 'primus.js');
+		savePrimusClientLibraryToFile(filePath, done);
+	});
+
 	return {
 		broadcast: broadcast,
-		subscriptions: subscriptions,
+		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		primus: primus,
+		subscriptions: subscriptions,
 	};
 };
