@@ -10,6 +10,15 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
+	onionMoneroBlockchainExplorer: {
+		mainnet: [
+			'xmrchain.com',
+			'moneroexplorer.pro',
+		],
+		testnet: [
+			'testnet.xmrchain.com',
+		],
+	},
 	insight: {
 		bitcoin: [
 			{ baseUrl: 'https://insight.bitpay.com' },

@@ -7,7 +7,7 @@ module.exports = function(app) {
 	app.get('/api/v1/monero/outputs', function(req, res, next) {
 
 		var networkName = req.query.network;
-		var networks = _.keys(app.services.xmrchain.hostname);
+		var networks = _.keys(app.config.onionMoneroBlockchainExplorer);
 		var tx = {
 			txhash: req.query.txhash,
 			address: req.query.address,
@@ -29,7 +29,7 @@ module.exports = function(app) {
 
 		networkName = networkName.toLowerCase();
 
-		app.services.xmrchain.outputs(tx, networkName, function(error, results) {
+		app.providers.monero.outputs(tx, networkName, function(error, results) {
 
 			if (error) {
 				return next(error);

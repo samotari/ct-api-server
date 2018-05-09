@@ -6,6 +6,6 @@ module.exports = function(app) {
 		coinbase: require('./coinbase')(app),
 		insight: require('./insight')(app),
 		poloniex: require('./poloniex')(app),
-		xmrchain: require('./xmrchain')(app),
+		onionMoneroBlockchainExplorer: require('./onion-monero-blockchain-explorer')(app),
 	};
 };
