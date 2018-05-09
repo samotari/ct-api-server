@@ -9,22 +9,16 @@ module.exports = function(app) {
 
 	return {
 
-		hostname: {
-			mainnet: 'xmrchain.com',
-			testnet: 'testnet.xmrchain.com',
+		getBlockExplorerUrl: function(uri, networkHost) {
+
+			return 'https://' + networkHost + uri;
 		},
 
-		getBlockExplorerUrl: function(uri, networkName) {
-
-			var hostname = this.hostname[networkName];
-			return 'https://' + hostname + uri;
-		},
-
-		getTransactions: function(networkName, cb) {
+		getTransactions: function(networkHost, cb) {
 
 			async.parallel({
-				confirmed: _.bind(this.getRecentConfirmedTransactions, this, networkName),
-				mempool: _.bind(this.getMemPoolTransactions, this, networkName),
+				confirmed: _.bind(this.getRecentConfirmedTransactions, this, networkHost),
+				mempool: _.bind(this.getMemPoolTransactions, this, networkHost),
 			}, function(error, results) {
 
 				if (error) {
@@ -38,9 +32,8 @@ module.exports = function(app) {
 			});
 		},
 
-		getMemPoolTransactions: function(networkName, cb) {
-			var uri = this.getBlockExplorerUrl('/api/mempool', networkName);
-
+		getMemPoolTransactions: function(networkHost, cb) {
+			var uri = this.getBlockExplorerUrl('/api/mempool', networkHost);
 			request(uri, function(error, response, data) {
 				if (error) {
 					return cb(error);
@@ -54,9 +47,10 @@ module.exports = function(app) {
 			});
 		},
 
-		getRecentConfirmedTransactions: function(networkName, cb) {
+		getRecentConfirmedTransactions: function(networkHost, cb) {
 
-			var uri = this.getBlockExplorerUrl('/api/transactions', networkName);
+			var uri = this.getBlockExplorerUrl('/api/transactions', networkHost);
+
 			request(uri, function(error, response, data) {
 				if (error) {
 					return cb(error);
@@ -75,9 +69,9 @@ module.exports = function(app) {
 			});
 		},
 
-		outputs: function(tx, networkName, cb) {
+		outputs: function(tx, networkHost, cb) {
 
-			var uri = this.getBlockExplorerUrl('/api/outputs', networkName);
+			var uri = this.getBlockExplorerUrl('/api/outputs', networkHost);
 
 			uri += '?' + querystring.stringify({
 				txhash: tx.txhash,

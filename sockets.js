@@ -90,7 +90,7 @@ module.exports = function(app) {
 				async.whilst(
 					function() { return hasSubscriptions(channel); },
 					function(callback) {
-						app.services.xmrchain.getTransactions(params.networkName, function(error, data) {
+						app.providers.monero.getTransactions(params.networkName, function(error, data) {
 							if (error) {
 								app.error(error);
 								_.delay(callback, 30 * 1000/* 30 seconds */);
