@@ -5,8 +5,8 @@ module.exports = function(grunt) {
 	var config = {
 		test: {
 			NODE_ENV: 'test',
-			CT_WEB_PLATFORM_HOST: 'localhost',
-			CT_WEB_PLATFORM_PORT: 3601,
+			CT_API_SERVER_HOST: 'localhost',
+			CT_API_SERVER_PORT: 3601,
 		}
 	};
 
