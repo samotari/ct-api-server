@@ -12,12 +12,12 @@ The API server provides a websocket interface via [primus](https://github.com/pr
 
 You will first need to include the primus client library in your web page (or app):
 ```html
-<script src="https://ct-api.degreesofzero.com/primus/primus.js"></script>
+<script src="https://api.cryptoterminal.eu/primus/primus.js"></script>
 ```
 
 Then open a socket connection to the server:
 ```js
-var primus = Primus.connect('https://ct-api.degreesofzero.com/primus');
+var primus = Primus.connect('https://api.cryptoterminal.eu/primus');
 
 primus.once('open', function() {
 	console.log('successfully opened websocket connection');
