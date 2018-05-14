@@ -1,7 +1,8 @@
 {
-  "name": "crypto-terminal-api-server",
+  "name": "ct-api-server",
   "version": "1.0.0",
-  "description": "",
+  "description": "API server for the CryptoTerminal mobile application",
+  "private": true,
   "main": "server.js",
   "dependencies": {
     "async": "2.6.0",
@@ -31,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samotari/crypto-terminal-api-server.git"
+    "url": "git+https://github.com/samotari/ct-api-server.git"
   },
   "author": {
     "name": "Charles Hill",
@@ -45,7 +46,7 @@
   ],
   "license": "AGPL-3.0",
   "bugs": {
-    "url": "https://github.com/samotari/crypto-terminal-api-server/issues"
+    "url": "https://github.com/samotari/ct-api-server/issues"
   },
-  "homepage": "https://github.com/samotari/crypto-terminal-api-server#readme"
+  "homepage": "https://github.com/samotari/ct-api-server#readme"
 }
