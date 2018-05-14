@@ -19,15 +19,16 @@ module.exports = function(app) {
 
 		// Send an error to the socket client.
 		spark.error = function(error) {
+			app.log(error);
 			if (_.isObject(error) && error.message) {
 				error = error.message;
 			}
-			if (!_.isString(error)) {
-				throw new Error('Only call spark.error() with an error string.');
+			// Only send error strings to the client.
+			if (_.isString(error)) {
+				spark.write({
+					error: error,
+				});
 			}
-			spark.write({
-				error: error,
-			});
 		};
 
 		spark.on('data', function(data) {
@@ -107,6 +108,7 @@ module.exports = function(app) {
 	};
 
 	var subscribe = function(channel, spark) {
+		app.log('socket.subscribe', spark.id, channel);
 		subscriptions[channel] = subscriptions[channel] || {};
 		subscriptions[channel][spark.id] = spark;
 		if (cache[channel]) {
@@ -132,6 +134,7 @@ module.exports = function(app) {
 	};
 
 	var unsubscribe = function(channel, spark) {
+		app.log('socket.unsubscribe', spark.id, channel);
 		subscriptions[channel] = subscriptions[channel] || {};
 		delete subscriptions[channel][spark.id];
 		_.each(handlers, function(handler, searchText) {
