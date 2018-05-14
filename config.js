@@ -21,19 +21,19 @@ var config = module.exports = {
 	},
 	insight: {
 		bitcoin: [
-			{ baseUrl: 'https://insight.bitpay.com' },
 			{ baseUrl: 'https://bitcore1.trezor.io' },
 			{ baseUrl: 'https://bitcore2.trezor.io' },
+			{ baseUrl: 'https://insight.bitpay.com' },
 		],
 		bitcoinTestnet: [
-			{ baseUrl: 'https://test-insight.bitpay.com' },
 			{ baseUrl: 'https://testnet-bitcore1.trezor.io' },
 			{ baseUrl: 'https://testnet-bitcore2.trezor.io' },
+			{ baseUrl: 'https://test-insight.bitpay.com' },
 		],
 		litecoin: [
-			{ baseUrl: 'https://insight.litecore.io' },
 			{ baseUrl: 'https://ltc-bitcore1.trezor.io' },
 			{ baseUrl: 'https://ltc-bitcore2.trezor.io' },
+			{ baseUrl: 'https://insight.litecore.io' },
 		],
 		litecoinTestnet: [],
 	},
