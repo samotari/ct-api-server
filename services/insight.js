@@ -11,6 +11,7 @@ module.exports = function(app) {
 	});
 
 	app.onStart(function(done) {
+
 		_.each(instances, function(instanceArray) {
 			_.each(instanceArray, function(instance) {
 				instance.connect(function(error) {
@@ -19,10 +20,24 @@ module.exports = function(app) {
 						app.error('Failed to connect to insight API (' + uri + ')', error);
 					} else {
 						app.log('Connected to insight API (' + uri + ')');
+						instance.socket.on('error', function(error) {
+							app.log('Insight error (' + uri + '):', erorr);
+						});
 					}
 				});
 			});
 		});
+
+		// Periodically log the connection status of all insight instances.
+		setInterval(function() {
+			_.each(instances, function(instanceArray) {
+				_.each(instanceArray, function(instance) {
+					var uri = instance.config.baseUrl;
+					app.log('Insight connection status (' + uri + '):', instance.socket.connected ? 'OK' : 'DISCONNECTED');
+				});
+			});
+		}, 5 * 60 * 1000);
+
 		// Don't wait to finish connecting.
 		done();
 	});

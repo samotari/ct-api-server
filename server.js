@@ -52,9 +52,8 @@ app.use(function(error, req, res, next) {
 	next();
 });
 
-app.log = function(message) {
-	var timestamp = (new Date()).toISOString().replace(/T/, ' ').replace(/\..+/, '');
-	console.log('[ ' + timestamp + ' ] ' + message);
+app.log = function() {
+	console.log.apply(console, arguments);
 };
 
 app.error = function(error) {
