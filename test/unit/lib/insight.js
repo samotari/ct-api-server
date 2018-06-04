@@ -34,12 +34,12 @@ describe('lib.insight', function() {
 	describe('Insight#hasSubscriptions(channel)', function() {
 
 		it('with no subscriptions', function() {
-			var channel = 'has-none';
+			var channel = 'none';
 			expect(instance.hasSubscriptions(channel)).to.equal(false);
 		});
 
 		it('with subscriptions', function() {
-			var channel = 'has-some';
+			var channel = 'some';
 			instance.subscribe(channel, _.noop);
 			expect(instance.hasSubscriptions(channel)).to.equal(true);
 		});
@@ -49,7 +49,10 @@ describe('lib.insight', function() {
 
 		var room = '99';
 		var eventName = 'someEvent';
-		var channel = [room, eventName].join('/');
+		var channel;
+		before(function() {
+			channel = [room, eventName].join(instance.delimiters.channel);
+		});
 
 		it('missing channel name', function() {
 			var thrownError;
@@ -105,7 +108,12 @@ describe('lib.insight', function() {
 
 		var room = '77';
 		var eventName = 'someEvent2';
-		var channel = [room, eventName].join('/');
+
+		var channel;
+		before(function() {
+			channel = [room, eventName].join(instance.delimiters.channel);
+		});
+
 		var subscriptionId;
 		beforeEach(function() {
 			subscriptionId = instance.subscribe(channel, function() {});
@@ -125,7 +133,7 @@ describe('lib.insight', function() {
 		it('missing channel name', function() {
 			var thrownError;
 			try {
-				instance.unsubscribe('-123');
+				instance.unsubscribe(instance.delimiters.subscriptionId + '123');
 			} catch (error) {
 				thrownError = error;
 			}

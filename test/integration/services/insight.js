@@ -9,7 +9,7 @@ var app = manager.app();
 
 describe('services.insight', function() {
 
-	describe('new transactions', function() {
+	describe.skip('new transactions', function() {
 
 		var subscriptions = [];
 		after(function() {

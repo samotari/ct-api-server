@@ -6,6 +6,7 @@ module.exports = function(app) {
 
 	var instances = _.mapObject(app.config.insight, function(configs) {
 		return _.map(configs, function(config) {
+			config.debug = app.config.debug === true;
 			return new app.lib.Insight(config);
 		});
 	});

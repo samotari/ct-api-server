@@ -1,6 +1,7 @@
 'use strict';
 
 var config = module.exports = {
+	debug: false,
 	host: process.env.CT_API_SERVER_HOST || 'localhost',
 	port: parseInt(process.env.CT_API_SERVER_PORT || 3600),
 	supportedDisplayCurrencies: ['CZK', 'EUR', 'USD', 'BTC', 'LTC', 'XMR'],

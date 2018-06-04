@@ -68,8 +68,10 @@ module.exports = function(app) {
 						broadcast(channel, data);
 					});
 				} catch (error) {
+					app.log(error);
 					return spark.error(error);
 				}
+				app.log('subscribe', channel, subscriptionId);
 				spark.insight = spark.insight || {};
 				spark.insight[channel] = subscriptionId;
 			},
@@ -77,6 +79,7 @@ module.exports = function(app) {
 				spark.insight = spark.insight || {};
 				var subscriptionId = spark.insight[channel];
 				if (subscriptionId) {
+					app.log('unsubscribe', channel, subscriptionId);
 					try {
 						app.services.insight.unsubscribe(subscriptionId);
 					} catch (error) {
