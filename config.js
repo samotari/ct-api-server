@@ -22,8 +22,6 @@ var config = module.exports = {
 	},
 	insight: {
 		bitcoin: [
-			{ baseUrl: 'https://bitcore1.trezor.io' },
-			{ baseUrl: 'https://bitcore2.trezor.io' },
 			{ baseUrl: 'https://insight.bitpay.com' },
 		],
 		bitcoinTestnet: [
