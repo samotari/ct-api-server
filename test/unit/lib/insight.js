@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var async = require('async');
 var expect = require('chai').expect;
 
 var manager = require('../../manager');
@@ -10,7 +11,7 @@ describe('lib.insight', function() {
 
 	var io;
 	var port = 4001;
-	before(function() {
+	beforeEach(function() {
 		io = require('socket.io')();
 		io.listen(port);
 	});
@@ -27,8 +28,24 @@ describe('lib.insight', function() {
 		instance.socket.close();
 	});
 
-	after(function(done) {
+	afterEach(function(done) {
 		io.close(done);
+	});
+
+	describe('reconnect', function() {
+
+		it('should automatically reconnect when the socket.io server disconnects', function(done) {
+			instance.socket.on('reconnect', function() {
+				async.until(function() {
+					return instance.socket.connected;
+				}, function(next) {
+					_.delay(next, 10);
+				}, done);
+			});
+			io.close();
+			io = require('socket.io')();
+			io.listen(port);
+		});
 	});
 
 	describe('Insight#hasSubscriptions(channel)', function() {
