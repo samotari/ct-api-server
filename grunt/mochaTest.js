@@ -4,16 +4,14 @@ module.exports = {
 	integration: {
 		options: {
 			reporter: 'spec',
-			ui: 'bdd',
-			timeout: 30000
+			ui: 'bdd'
 		},
 		src: ['test/integration/**/*.js'],
 	},
 	unit: {
 		options: {
 			reporter: 'spec',
-			ui: 'bdd',
-			timeout: 30000
+			ui: 'bdd'
 		},
 		src: ['test/unit/**/*.js'],
 	},

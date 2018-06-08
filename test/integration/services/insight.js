@@ -9,7 +9,20 @@ var app = manager.app();
 
 describe('services.insight', function() {
 
-	describe.skip('new transactions', function() {
+	describe('new transactions', function() {
+
+		// Only test bitcoinTestnet because it's the most likely to have new transactions, quickly.
+		var method = 'bitcoinTestnet';
+		var instance;
+		before(function(done) {
+			this.timeout(10000);
+			var test = function() { return !!instance; };
+			var iteratee = function(next) {
+				instance = app.services.insight.getAnyConnectedInstanceByMethod(method);
+				_.delay(next, 50);
+			};
+			async.until(test, iteratee, done);
+		});
 
 		var subscriptions = [];
 		after(function() {
@@ -19,14 +32,9 @@ describe('services.insight', function() {
 			subscriptions = [];
 		});
 
-		// Only test bitcoin because it's the most likely to have new transactions, quickly.
-		var method = 'bitcoin';
-		var instance;
-		before(function() {
-			instance = _.first(app.services.insight.instances[method]);
-		});
-
 		it(method, function(done) {
+
+			this.timeout(10000);
 
 			var receivedData;
 			var subscriptionId = instance.subscribe('inv/tx', function(data) {

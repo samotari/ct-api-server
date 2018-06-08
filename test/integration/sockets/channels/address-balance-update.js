@@ -44,7 +44,8 @@ describe('socket.channels', function() {
 			instance = new app.lib.Insight({
 				baseUrl: 'http://localhost:' + port,
 			});
-			instance.connect(done);
+			instance.method = method;
+			app.services.insight.connectToInstance(instance, done);
 			app.services.insight.instances[method] = [instance];
 		});
 

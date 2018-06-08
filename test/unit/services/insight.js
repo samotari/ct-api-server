@@ -1,6 +1,7 @@
 'use strict';
 
 var _ = require('underscore');
+var async = require('async');
 var expect = require('chai').expect;
 
 var manager = require('../../manager');
@@ -40,6 +41,7 @@ describe('services.insight', function() {
 		var instance;
 		before(function() {
 			instance = new app.lib.Insight({}/* config */);
+			instance.method = method;
 			app.services.insight.instances[method] = [instance];
 		});
 
@@ -65,51 +67,184 @@ describe('services.insight', function() {
 
 	describe('listenToAddress(method, address, onData)', function() {
 
+		var io;
+		var port = 4001;
+		beforeEach(function() {
+			io = require('socket.io')();
+			io.listen(port);
+		});
+
 		var method = 'test123';
 		var instance;
-		before(function() {
-			instance = new app.lib.Insight({}/* config */);
+		beforeEach(function() {
+			instance = new app.lib.Insight({
+				baseUrl: 'http://localhost:' + port,
+			});
+			instance.method = method;
 			app.services.insight.instances[method] = [instance];
 		});
 
-		after(function() {
-			delete app.services.insight.instances[method];
+		var originalListenToAddress;
+		beforeEach(function() {
+			originalListenToAddress = instance.listenToAddress;
 		});
 
-		describe('with no connected instances', function() {
+		afterEach(function() {
+			app.services.insight.clearSubscriptions();
+		});
 
-			before(function() {
-				instance.socket = { connected: false };
-			});
+		afterEach(function() {
+			instance.listenToAddress = originalListenToAddress;
+		});
 
-			it('should fail', function() {
-				var thrownError;
-				try {
-					app.services.insight.listenToAddress(method, 'some-address-321', _.noop);
-				} catch (error) {
-					thrownError = error;
-				}
-				expect(thrownError).to.not.be.undefined;
-			});
+		afterEach(function() {
+			instance.close();
+		});
+
+		afterEach(function(done) {
+			if (!io) return done();
+			io.close(done);
+		});
+
+		afterEach(function() {
+			delete app.services.insight.instances[method];
 		});
 
 		describe('with at least one connected instance', function() {
 
-			before(function() {
-				instance.socket = { connected: true };
+			beforeEach(function(done) {
+				app.services.insight.connectToInstance(instance, done);
 			});
 
 			it('should start listening to a connected instance for the given method', function(done) {
 				var testArgs = {
 					address: 'some-address-123',
 					onData: function(data) {},
-				}
+				};
+				var called = false;
 				instance.listenToAddress = function(address, onData) {
+					called = true;
 					expect(address).to.equal(testArgs.address);
 					expect(onData).to.equal(testArgs.onData);
-					done();
+					return originalListenToAddress.apply(this, arguments);
 				};
-				app.services.insight.listenToAddress(method, testArgs.address, testArgs.onData);
+				app.services.insight.listenToAddress(method, testArgs.address, testArgs.onData, function(error, subscriptionId) {
+					expect(error).to.equal(null);
+					expect(subscriptionId).to.be.a('string');
+					expect(called).to.equal(true);
+					done();
+				});
+			});
+		});
+
+		describe('with at least one connected instance (with a delay)', function() {
+
+			it('should start listening to a connected instance for the given method', function(done) {
+				var testArgs = {
+					address: 'some-other-address-321',
+					onData: function(data) {},
+				};
+				var called = false;
+				instance.listenToAddress = function(address, onData) {
+					called = true;
+					expect(address).to.equal(testArgs.address);
+					expect(onData).to.equal(testArgs.onData);
+					return originalListenToAddress.apply(this, arguments);
+				};
+				app.services.insight.listenToAddress(method, testArgs.address, testArgs.onData, function(error, subscriptionId) {
+					expect(error).to.equal(null);
+					expect(subscriptionId).to.be.a('string');
+					expect(called).to.equal(true);
+					done();
+				});
+				app.services.insight.connectToInstance(instance, function(error) {
+					if (error) return done(error);
+				});
+			});
+		});
+
+		describe('with no connected instances (time-out)', function() {
+
+			var timeoutBefore;
+			before(function() {
+				// Set a shorter time-out.
+				timeoutBefore = app.config.insight.listenToAddress.timeout;
+				app.config.insight.listenToAddress.timeout = 100;
+			});
+
+			after(function() {
+				app.config.insight.listenToAddress.timeout = timeoutBefore;
+			});
+
+			it('should fail', function(done) {
+				var called = false;
+				instance.listenToAddress = function(address, onData) {
+					called = true;
+					return originalListenToAddress.apply(instance, arguments);
+				};
+				app.services.insight.listenToAddress(method, 'address123', _.noop, function(error, subscriptionId) {
+					expect(error).to.not.equal(null);
+					expect(subscriptionId).to.be.undefined;
+					expect(called).to.equal(false);
+					done();
+				});
+			});
+		});
+
+		describe('when connected instance disconnects after client starts listening', function() {
+
+			var nextIO;
+			var nextPort = 4002;
+			beforeEach(function() {
+				nextIO = require('socket.io')();
+				nextIO.listen(nextPort);
+			});
+
+			var nextInstance;
+			beforeEach(function(done) {
+				nextInstance = new app.lib.Insight({
+					baseUrl: 'http://localhost:' + nextPort,
+				});
+				nextInstance.method = method;
+				app.services.insight.connectToInstance(nextInstance, done);
+				app.services.insight.instances[method].push(nextInstance);
+			});
+
+			var nextInstanceOriginalListenToAddress;
+			beforeEach(function() {
+				nextInstanceOriginalListenToAddress = nextInstance.listenToAddress;
+			});
+
+			afterEach(function() {
+				nextInstance.listenToAddress = nextInstanceOriginalListenToAddress;
+			});
+
+			afterEach(function() {
+				nextInstance.socket.close();
+			});
+
+			afterEach(function(done) {
+				nextIO.close(done);
+			});
+
+			it('should listen to the next connected instance', function(done) {
+				var testArgs = {
+					address: 'another-address456',
+					onData: function(data) {},
+				};
+				nextInstance.listenToAddress = function(address, onData) {
+					expect(address).to.equal(testArgs.address);
+					expect(onData).to.equal(testArgs.onData);
+					return nextInstanceOriginalListenToAddress.apply(this, arguments);
+				};
+				app.services.insight.listenToAddress(method, testArgs.address, testArgs.onData, function(error, subscriptionId) {
+					expect(error).to.equal(null);
+					expect(subscriptionId).to.be.a('string');
+					done();
+				});
+				// Kill the socket.io server.
+				io.close();
+				io = null;
 			});
 		});
 	});
