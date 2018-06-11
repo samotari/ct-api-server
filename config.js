@@ -21,19 +21,24 @@ var config = module.exports = {
 		],
 	},
 	insight: {
-		bitcoin: [
-			{ baseUrl: 'https://insight.bitpay.com' },
-		],
-		bitcoinTestnet: [
-			{ baseUrl: 'https://testnet-bitcore1.trezor.io' },
-			{ baseUrl: 'https://testnet-bitcore2.trezor.io' },
-			{ baseUrl: 'https://test-insight.bitpay.com' },
-		],
-		litecoin: [
-			{ baseUrl: 'https://ltc-bitcore1.trezor.io' },
-			{ baseUrl: 'https://ltc-bitcore2.trezor.io' },
-			{ baseUrl: 'https://insight.litecore.io' },
-		],
-		litecoinTestnet: [],
+		hosts: {
+			bitcoin: [
+				{ baseUrl: 'https://insight.bitpay.com' },
+			],
+			bitcoinTestnet: [
+				{ baseUrl: 'https://testnet-bitcore1.trezor.io' },
+				{ baseUrl: 'https://testnet-bitcore2.trezor.io' },
+				{ baseUrl: 'https://test-insight.bitpay.com' },
+			],
+			litecoin: [
+				{ baseUrl: 'https://ltc-bitcore1.trezor.io' },
+				{ baseUrl: 'https://ltc-bitcore2.trezor.io' },
+				{ baseUrl: 'https://insight.litecore.io' },
+			],
+			litecoinTestnet: [],
+		},
+		listenToAddress: {
+			timeout: 5000,
+		},
 	},
 };

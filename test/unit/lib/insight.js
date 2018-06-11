@@ -16,16 +16,18 @@ describe('lib.insight', function() {
 		io.listen(port);
 	});
 
+	var method = 'test';
 	var instance;
 	beforeEach(function(done) {
 		instance = new app.lib.Insight({
 			baseUrl: 'http://localhost:' + port,
 		});
-		instance.connect(done);
+		instance.method = method;
+		app.services.insight.connectToInstance(instance, done);
 	});
 
 	afterEach(function() {
-		instance.socket.close();
+		instance.close();
 	});
 
 	afterEach(function(done) {

@@ -63,17 +63,18 @@ module.exports = function(app) {
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
-				try {
-					var subscriptionId = app.services.insight.listenToAddress(method, address, function(data) {
-						broadcast(channel, data);
-					});
-				} catch (error) {
-					app.log(error);
-					return spark.error(error);
-				}
-				app.log('subscribe', channel, subscriptionId);
-				spark.insight = spark.insight || {};
-				spark.insight[channel] = subscriptionId;
+				var onData = function(data) {
+					broadcast(channel, data);
+				};
+				app.services.insight.listenToAddress(method, address, onData, function(error, subscriptionId) {
+					if (error) {
+						app.log(error);
+						return spark.error(error);
+					}
+					app.log('subscribe', channel, subscriptionId);
+					spark.insight = spark.insight || {};
+					spark.insight[channel] = subscriptionId;
+				});
 			},
 			unsubscribe: function(channel, spark) {
 				spark.insight = spark.insight || {};
