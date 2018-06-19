@@ -27,38 +27,27 @@ describe('socket.channels', function() {
 
 	describe('address-balance-updates', function() {
 
-		var io;
-		var port = 4001;
+		var method = 'test-123';
+		var provider;
 		before(function() {
-			io = require('socket.io')();
-			io.listen(port);
-		});
-
-		after(function(done) {
-			io.close(done);
-		});
-
-		var method = 'test';
-		var instance;
-		before(function(done) {
-			instance = new app.lib.Insight({
-				baseUrl: 'http://localhost:' + port,
-			});
-			instance.method = method;
-			app.services.insight.connectToInstance(instance, done);
-			app.services.insight.instances[method] = [instance];
+			provider = app.lib.BitcoinProvider(method)(app);
+			app.providers[method] = provider;
 		});
 
 		after(function() {
-			delete app.services.insight.instances[method];
+			provider.close();
+			provider = null;
+			delete app.providers[method];
 		});
 
 		it('receive data', function(done) {
 
+			var address = '1234567890xyz';
 			var channel = 'address-balance-updates?' + querystring.stringify({
 				method: method,
-				address: '1234567890',
+				address: address,
 			});
+			var value = 5000000;
 
 			var receivedData;
 			client.socket.on('data', function(data) {
@@ -67,38 +56,14 @@ describe('socket.channels', function() {
 				}
 			});
 
-			var amount = 50000000;
-
-			// Get the only connected socket.
-			var socket = _.values(io.sockets.sockets)[0];
-			// Listen to when the socket joins the "inv/tx" room.
-			socket.join('inv/tx', function() {
-				// Emit transaction data until the client receives the data.
-				async.until(function() { return !!receivedData; }, function(next) {
-					socket.emit('tx', {
-						txid: '7fb51b6410eb4efeb447bfeb92e62cff6f33e3cc66a5b9dfe3d05b308c062a75',
-						valueOut: 4.5,
-						vout: [
-							{ '1234567890': amount },
-							{ '2MxPRHPXLeiTdHT5ciu6LSDixffx7Su7cbL': 400000000 }
-						],
-						isRBF: false
-					});
-					_.delay(next, 5);
-				}, _.noop);
-			});
-
 			async.until(function() { return !!receivedData; }, function(next) {
 				_.delay(next, 10);
 			}, function(error) {
 
-				if (error) {
-					return done(error);
-				}
-
 				try {
+					expect(error).to.equal(null);
 					expect(receivedData).to.be.an('object');
-					expect(receivedData.amount_received).to.equal(amount);
+					expect(receivedData.amount_received).to.equal(value);
 				} catch (error) {
 					return done(error);
 				}
@@ -107,7 +72,16 @@ describe('socket.channels', function() {
 			});
 
 			client.onError(done);
-			client.subscribe(channel);
+			client.subscribe(channel, function(error) {
+				if (error) return done(error);
+				var eventName = ['tx', address].join(':');
+				var tx = {
+					address: address,
+					txid: '522f87xb689c33a8306b8e6aacb7917f076536bb1ab57a274e3ee92b7b2d1be0',
+					value: value,
+				};
+				provider.emit(eventName, tx);
+			});
 		});
 	});
 });

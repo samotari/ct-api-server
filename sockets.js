@@ -60,33 +60,30 @@ module.exports = function(app) {
 	var handlers = {
 		'address-balance-updates?': {
 			subscribe: function(channel, spark) {
+				spark.listeners = spark.listeners || {};
+				spark.listeners[channel] = spark.listeners[channel] || {};
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
-				var onData = function(data) {
+				var eventName = ['tx', address].join(':');
+				var listener = function(tx) {
+					var data = { amount_received: tx.value };
 					broadcast(channel, data);
 				};
-				app.services.insight.listenToAddress(method, address, onData, function(error, subscriptionId) {
-					if (error) {
-						app.log(error);
-						return spark.error(error);
-					}
-					app.log('subscribe', channel, subscriptionId);
-					spark.insight = spark.insight || {};
-					spark.insight[channel] = subscriptionId;
-				});
+				app.providers[method].on(eventName, listener);
+				spark.listeners[channel] = listener;
 			},
 			unsubscribe: function(channel, spark) {
-				spark.insight = spark.insight || {};
-				var subscriptionId = spark.insight[channel];
-				if (subscriptionId) {
-					app.log('unsubscribe', channel, subscriptionId);
-					try {
-						app.services.insight.unsubscribe(subscriptionId);
-					} catch (error) {
-						app.error(error);
-					}
+				spark.listeners = spark.listeners || {};
+				var params = querystring.parse(channel.split('?')[1]);
+				var method = params.method;
+				var address = params.address;
+				var eventName = ['tx', address].join(':');
+				var listener = spark.listeners[channel];
+				if (listener) {
+					app.providers[method].removeListener(eventName, listener);
 				}
+				delete spark.listeners[channel];
 			},
 		},
 		'get-monero-transactions?': {
