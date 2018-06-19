@@ -14,13 +14,13 @@ var config = module.exports = {
 	blockCypher: {
 		networks: {
 			bitcoin: {
-				ws: 'socket.blockcypher.com/v1/btc/main',
+				ws: 'wss://socket.blockcypher.com/v1/btc/main',
 			},
 			bitcoinTestnet: {
-				ws: 'socket.blockcypher.com/v1/btc/test3',
+				ws: 'wss://socket.blockcypher.com/v1/btc/test3',
 			},
 			litecoin: {
-				ws: 'socket.blockcypher.com/v1/ltc/main',
+				ws: 'wss://socket.blockcypher.com/v1/ltc/main',
 			},
 		},
 	},

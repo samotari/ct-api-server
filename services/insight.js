@@ -4,6 +4,7 @@ module.exports = function(app) {
 
 	var _ = require('underscore');
 	var async = require('async');
+	var EventEmitter = require('events').EventEmitter || require('events');
 
 	var instances = _.mapObject(app.config.insight.hosts, function(configs, method) {
 		return _.map(configs, function(config) {
@@ -156,7 +157,8 @@ module.exports = function(app) {
 		subscriptions = {};
 	};
 
-	return {
+	// Provide event emitter methods.
+	var service = _.extend({
 		clearSubscriptions: clearSubscriptions,
 		connectToInstance: connectToInstance,
 		findInstanceByName: findInstanceByName,
@@ -166,5 +168,7 @@ module.exports = function(app) {
 		listenToAddress: listenToAddress,
 		subscriptions: subscriptions,
 		unsubscribe: unsubscribe,
-	};
+	}, EventEmitter.prototype);
+
+	return service;
 };

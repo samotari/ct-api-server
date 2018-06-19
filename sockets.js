@@ -65,7 +65,7 @@ module.exports = function(app) {
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
-				var eventName = ['tx', method, address].join(':');
+				var eventName = ['tx', address].join(':');
 				var onData = function(data) {
 					broadcast(channel, data);
 				};
@@ -73,7 +73,7 @@ module.exports = function(app) {
 					var data = { amount_received: tx.value };
 					onData(data);
 				};
-				app.services.blockCypher.on(eventName, listener);
+				app.providers[method].on(eventName, listener);
 				spark.subscriptions[channel].listener = listener;
 				// app.services.insight.listenToAddress(method, address, onData, function(error, subscriptionId) {
 				// 	if (error) {
@@ -90,10 +90,10 @@ module.exports = function(app) {
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
-				var eventName = ['tx', method, address].join(':');
+				var eventName = ['tx', address].join(':');
 				var listener = spark.subscriptions[channel].listener;
 				if (listener) {
-					app.services.blockCypher.removeListener(eventName, listener);
+					app.providers[method].removeListener(eventName, listener);
 					delete spark.subscriptions[channel].listener;
 				}
 				// var subscriptionId = spark.subscriptions[channel].subscriptionId;
@@ -106,6 +106,7 @@ module.exports = function(app) {
 				// 	}
 				// 	delete spark.subscriptions[channel].subscriptionId;
 				// }
+				delete spark.subscriptions[channel];
 			},
 		},
 		'get-monero-transactions?': {

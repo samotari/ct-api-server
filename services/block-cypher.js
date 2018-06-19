@@ -6,12 +6,11 @@
 module.exports = function(app) {
 
 	var _ = require('underscore');
-	var async = require('async');
 	var EventEmitter = require('events').EventEmitter || require('events');
 	var WebSocket = require('ws');
 
-	_.each(app.config.blockCypher.networks, function(network, networkName) {
-		var ws = new WebSocket('wss://' + network.ws);
+	_.each(app.config.blockCypher.networks, function(network, method) {
+		var ws = new WebSocket(network.ws);
 		ws.on('open', function() {
 			app.log('connected to', network.ws);
 			// Subscribe to new, unconfirmed transactions.
@@ -22,8 +21,9 @@ module.exports = function(app) {
 			_.each(data.outputs, function(output) {
 				if (!_.isEmpty(output.addresses)) {
 					_.each(output.addresses, function(address) {
-						var eventName = ['tx', networkName, address].join(':');
+						var eventName = ['tx', method].join(':');
 						var tx = {
+							address: address,
 							value: output.value,
 						};
 						service.emit(eventName, tx);
@@ -33,10 +33,8 @@ module.exports = function(app) {
 		});
 	});
 
-	var service = {};
-
 	// Provide event emitter methods.
-	service = _.extend(service, EventEmitter.prototype);
+	var service = _.extend({}, EventEmitter.prototype);
 
 	return service;
 };
