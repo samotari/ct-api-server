@@ -25,7 +25,7 @@ describe('socket.channels', function() {
 		}
 	});
 
-	describe('address-balance-updates', function() {
+	describe.skip('address-balance-updates', function() {
 
 		var io;
 		var port = 4001;

@@ -60,33 +60,52 @@ module.exports = function(app) {
 	var handlers = {
 		'address-balance-updates?': {
 			subscribe: function(channel, spark) {
+				spark.subscriptions = spark.subscriptions || {};
+				spark.subscriptions[channel] = spark.subscriptions[channel] || {};
 				var params = querystring.parse(channel.split('?')[1]);
 				var method = params.method;
 				var address = params.address;
+				var eventName = ['tx', method, address].join(':');
 				var onData = function(data) {
 					broadcast(channel, data);
 				};
-				app.services.insight.listenToAddress(method, address, onData, function(error, subscriptionId) {
-					if (error) {
-						app.log(error);
-						return spark.error(error);
-					}
-					app.log('subscribe', channel, subscriptionId);
-					spark.insight = spark.insight || {};
-					spark.insight[channel] = subscriptionId;
-				});
+				var listener = function(tx) {
+					var data = { amount_received: tx.value };
+					onData(data);
+				};
+				app.services.blockCypher.on(eventName, listener);
+				spark.subscriptions[channel].listener = listener;
+				// app.services.insight.listenToAddress(method, address, onData, function(error, subscriptionId) {
+				// 	if (error) {
+				// 		app.log(error);
+				// 		return spark.error(error);
+				// 	}
+				// 	app.log('subscribe.insight', channel, subscriptionId);
+				// 	spark.subscriptions[channel].subscriptionId = subscriptionId;
+				// });
 			},
 			unsubscribe: function(channel, spark) {
-				spark.insight = spark.insight || {};
-				var subscriptionId = spark.insight[channel];
-				if (subscriptionId) {
-					app.log('unsubscribe', channel, subscriptionId);
-					try {
-						app.services.insight.unsubscribe(subscriptionId);
-					} catch (error) {
-						app.error(error);
-					}
+				spark.subscriptions = spark.subscriptions || {};
+				spark.subscriptions[channel] = spark.subscriptions[channel] || {};
+				var params = querystring.parse(channel.split('?')[1]);
+				var method = params.method;
+				var address = params.address;
+				var eventName = ['tx', method, address].join(':');
+				var listener = spark.subscriptions[channel].listener;
+				if (listener) {
+					app.services.blockCypher.removeListener(eventName, listener);
+					delete spark.subscriptions[channel].listener;
 				}
+				// var subscriptionId = spark.subscriptions[channel].subscriptionId;
+				// if (subscriptionId) {
+				// 	app.log('insight.unsubscribe', channel, subscriptionId);
+				// 	try {
+				// 		app.services.insight.unsubscribe(subscriptionId);
+				// 	} catch (error) {
+				// 		app.error(error);
+				// 	}
+				// 	delete spark.subscriptions[channel].subscriptionId;
+				// }
 			},
 		},
 		'get-monero-transactions?': {

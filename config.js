@@ -11,6 +11,19 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
+	blockCypher: {
+		networks: {
+			bitcoin: {
+				ws: 'socket.blockcypher.com/v1/btc/main',
+			},
+			bitcoinTestnet: {
+				ws: 'socket.blockcypher.com/v1/btc/test3',
+			},
+			litecoin: {
+				ws: 'socket.blockcypher.com/v1/ltc/main',
+			},
+		},
+	},
 	onionMoneroBlockchainExplorer: {
 		mainnet: [
 			'xmrchain.com',

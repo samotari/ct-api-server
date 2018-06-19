@@ -7,7 +7,7 @@ var expect = require('chai').expect;
 var manager = require('../../manager');
 var app = manager.app();
 
-describe('services.insight', function() {
+describe.skip('services.insight', function() {
 
 	describe('new transactions', function() {
 
