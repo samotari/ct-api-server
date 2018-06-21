@@ -18,6 +18,7 @@ describe('sockets', function() {
 		});
 
 		it('should write the primus.js library to the given file path', function(done) {
+			this.timeout(5000);
 			app.sockets.savePrimusClientLibraryToFile(filePath, function(error) {
 				if (error) return done(error);
 				fs.readFile(filePath, function(error, buffer) {
