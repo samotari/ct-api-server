@@ -8,7 +8,7 @@ var expect = require('chai').expect;
 var manager = require('../../manager');
 var app = manager.app();
 
-describe('block-cypher', function() {
+describe('BlockCypher', function() {
 
 	var port = 3606;
 	var wss;
@@ -18,13 +18,9 @@ describe('block-cypher', function() {
 
 	var instance;
 	before(function(done) {
-		var config = {
-			method: 'test-xyz1',
-			network: {
-				ws: 'ws://localhost:' + port,
-			},
-		};
-		instance = new app.lib.BlockCypher(config);
+		instance = new app.lib.BlockCypher({
+			url: 'ws://localhost:' + port,
+		});
 		instance.connect(done);
 	});
 

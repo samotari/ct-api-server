@@ -53,6 +53,7 @@ app.use(function(error, req, res, next) {
 });
 
 app.log = function() {
+	if (process.env.NODE_ENV === 'test') return;
 	console.log.apply(console, arguments);
 };
 

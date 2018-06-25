@@ -7,7 +7,7 @@ var expect = require('chai').expect;
 var manager = require('../../manager');
 var app = manager.app();
 
-describe('services.insight', function() {
+describe('services.block-cypher', function() {
 
 	describe('EVENT: \'tx:NETWORK\'', function() {
 
@@ -15,7 +15,7 @@ describe('services.insight', function() {
 		var instance;
 
 		beforeEach(function() {
-			instance = app.services.insight.addInstance({}, method);
+			instance = app.services.blockCypher.addInstance({}, method);
 		});
 
 		afterEach(function(done) {
@@ -24,7 +24,7 @@ describe('services.insight', function() {
 
 		it('should propagate new transaction events from instances', function(done) {
 
-			app.services.insight.on('tx:' + method, function(data) {
+			app.services.blockCypher.on('tx:' + method, function(data) {
 				try {
 					expect(data).to.be.an('object');
 					expect(data).to.deep.equal(tx);

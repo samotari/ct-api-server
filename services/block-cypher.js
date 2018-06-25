@@ -6,27 +6,45 @@ module.exports = function(app) {
 	var EventEmitter = require('events').EventEmitter || require('events');
 
 	// Provide event emitter methods.
-	var service = _.extend({}, EventEmitter.prototype);
+	var service = _.extend({
 
-	service.instances = _.map(app.config.blockCypher.networks, function(network, method) {
+		instances: [],
 
-		var config = {
-			method: method,
-			network: network,
-		};
+		addInstance: function(options, network) {
 
-		var instance = new app.lib.BlockCypher(config);
+			var instance = new app.lib.BlockCypher(options);
+			var uri = options.url;
 
-		instance.connect(function(error) {
-			if (error) {
-				app.log('Failed to connect to', network.ws, error);
-			} else {
-				app.log('Connected to', network.ws);
+			if (uri) {
+
+				instance.connect(function(error) {
+					if (error) {
+						app.log('Failed to connect to', uri, error);
+					}
+				});
+
+				instance.on('connect', function() {
+					app.log('Connected to BlockCypher at ' + uri);
+				});
+
+				instance.on('disconnect', function() {
+					app.log('Disconnected from BlockCypher at ' + uri);
+				});
 			}
-		});
 
-		return instance;
-	});
+			instance.on('tx', function(tx) {
+				service.emit('tx:' + network, tx);
+			});
+
+			service.instances.push(instance);
+
+			return instance;
+		},
+
+	}, EventEmitter.prototype);
+
+	_.bindAll(service, 'addInstance');
+	_.each(app.config.blockCypher.networks, service.addInstance);
 
 	return service;
 };

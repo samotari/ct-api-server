@@ -58,6 +58,46 @@ module.exports = function(app) {
 	var cache = {};
 
 	var handlers = {
+		/*
+			Subscribe to new transactions for a given address and network.
+		*/
+		'v1/new-txs?': {
+			subscribe: function(channel, spark) {
+				var params = querystring.parse(channel.split('?')[1]);
+				var network = params.network;
+				var provider = app.providers[network];
+				if (provider) {
+					var address = params.address;
+					var eventName = ['tx', address].join(':');
+					var listener = function(tx) {
+						var data = {
+							amount: tx.amount,
+							txid: tx.txid,
+						};
+						broadcast(channel, data);
+					};
+					provider.on(eventName, listener);
+					spark.listeners = spark.listeners || {};
+					spark.listeners[channel] = listener;
+				}
+			},
+			unsubscribe: function(channel, spark) {
+				spark.listeners = spark.listeners || {};
+				var listener = spark.listeners[channel];
+				if (listener) {
+					var params = querystring.parse(channel.split('?')[1]);
+					var network = params.network;
+					var provider = app.providers[network];
+					if (provider) {
+						var address = params.address;
+						var eventName = ['tx', address].join(':');
+						provider.removeListener(eventName, listener);
+					}
+				}
+				delete spark.listeners[channel];
+			},
+		},
+		// Keep the following handler for temporary backwards compatibility.
 		'address-balance-updates?': {
 			subscribe: function(channel, spark) {
 				spark.listeners = spark.listeners || {};
@@ -67,7 +107,7 @@ module.exports = function(app) {
 				var address = params.address;
 				var eventName = ['tx', address].join(':');
 				var listener = function(tx) {
-					var data = { amount_received: tx.value };
+					var data = { amount_received: tx.amount };
 					broadcast(channel, data);
 				};
 				app.providers[method].on(eventName, listener);
@@ -161,18 +201,20 @@ module.exports = function(app) {
 		});
 	};
 
-	(function getExchangeRates() {
-		app.providers.exchangeRates(function(error, rates) {
-			if (error) {
-				_.delay(getExchangeRates, 30 * 1000/* 30 seconds */);
-				return;
-			}
-			var channel = 'exchange-rates';
-			cache[channel] = rates;
-			broadcast(channel, rates);
-			_.delay(getExchangeRates, 5 * 60 * 1000/* 5 minutes */);
-		});
-	})();
+	var startPollingExchangeRates = function() {
+		(function getExchangeRates() {
+			app.providers.exchangeRates(function(error, rates) {
+				if (error) {
+					app.log('Failed to get exchange rates data', error);
+					return _.delay(getExchangeRates, app.config.exchangeRates.polling.retryDelayOnError);
+				}
+				var channel = 'exchange-rates';
+				cache[channel] = rates;
+				broadcast(channel, rates);
+				_.delay(getExchangeRates, app.config.exchangeRates.polling.frequency);
+			});
+		})();
+	};
 
 	var savePrimusClientLibraryToFile = function(filePath, cb) {
 		try {
@@ -208,10 +250,19 @@ module.exports = function(app) {
 		savePrimusClientLibraryToFile(filePath, done);
 	});
 
+	app.onStart(function(done) {
+		if (app.config.exchangeRates.polling.init === true) {
+			startPollingExchangeRates();
+		}
+		done();
+	});
+
 	return {
 		broadcast: broadcast,
-		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
+		cache: cache,
 		primus: primus,
+		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
+		startPollingExchangeRates: startPollingExchangeRates,
 		subscriptions: subscriptions,
 	};
 };

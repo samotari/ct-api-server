@@ -11,47 +11,60 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
-	blockCypher: {
+	exchangeRates: {
+		polling: {
+			init: typeof process.env.CT_API_SERVER_EXCHANGE_RATES_POLLING_INIT !== 'undefined' ? process.env.CT_API_SERVER_EXCHANGE_RATES_POLLING_INIT !== 'false' : true,
+			retryDelayOnError: 30 * 1000,
+			frequency: 5 * 60 * 1000,
+		},
+	},
+	blockCypher: process.env.CT_API_SERVER_BLOCK_CYPHER ? JSON.parse(process.env.CT_API_SERVER_BLOCK_CYPHER) : {
 		networks: {
 			bitcoin: {
-				ws: 'wss://socket.blockcypher.com/v1/btc/main',
+				url: 'wss://socket.blockcypher.com/v1/btc/main',
 			},
 			bitcoinTestnet: {
-				ws: 'wss://socket.blockcypher.com/v1/btc/test3',
+				url: 'wss://socket.blockcypher.com/v1/btc/test3',
 			},
 			litecoin: {
-				ws: 'wss://socket.blockcypher.com/v1/ltc/main',
+				url: 'wss://socket.blockcypher.com/v1/ltc/main',
 			},
 		},
 	},
-	onionMoneroBlockchainExplorer: {
+	coinbase: process.env.CT_API_SERVER_COINBASE ? JSON.parse(process.env.CT_API_SERVER_COINBASE) : {
+		baseUrl: 'https://api.coinbase.com',
+	},
+	onionMoneroBlockchainExplorer: process.env.CT_API_SERVER_ONION_MONERO_BLOCKCHAIN_EXPLORER ? JSON.parse(process.env.CT_API_SERVER_ONION_MONERO_BLOCKCHAIN_EXPLORER) : {
 		mainnet: [
-			'xmrchain.com',
-			'moneroexplorer.pro',
+			'https://xmrchain.com',
+			'https://moneroexplorer.pro',
 		],
 		testnet: [
-			'testnet.xmrchain.com',
+			'https://testnet.xmrchain.com',
 		],
 	},
-	insight: {
+	insight: process.env.CT_API_SERVER_INSIGHT ? JSON.parse(process.env.CT_API_SERVER_INSIGHT) : {
 		hosts: {
 			bitcoin: [
-				{ baseUrl: 'https://insight.bitpay.com' },
+				{ url: 'https://insight.bitpay.com' },
 			],
 			bitcoinTestnet: [
-				{ baseUrl: 'https://testnet-bitcore1.trezor.io' },
-				{ baseUrl: 'https://testnet-bitcore2.trezor.io' },
-				{ baseUrl: 'https://test-insight.bitpay.com' },
+				{ url: 'https://testnet-bitcore1.trezor.io' },
+				{ url: 'https://testnet-bitcore2.trezor.io' },
+				{ url: 'https://test-insight.bitpay.com' },
 			],
 			litecoin: [
-				{ baseUrl: 'https://ltc-bitcore1.trezor.io' },
-				{ baseUrl: 'https://ltc-bitcore2.trezor.io' },
-				{ baseUrl: 'https://insight.litecore.io' },
+				{ url: 'https://ltc-bitcore1.trezor.io' },
+				{ url: 'https://ltc-bitcore2.trezor.io' },
+				{ url: 'https://insight.litecore.io' },
 			],
 			litecoinTestnet: [],
 		},
 		listenToAddress: {
 			timeout: 5000,
 		},
+	},
+	poloniex: process.env.CT_API_SERVER_POLONIEX ? JSON.parse(process.env.CT_API_SERVER_POLONIEX) : {
+		baseUrl: 'https://poloniex.com',
 	},
 };

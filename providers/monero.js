@@ -11,8 +11,8 @@ module.exports = function(app) {
 
 		outputs: function(tx, networkName, cb) {
 
-			var fns = _.map(app.config.onionMoneroBlockchainExplorer[networkName], function(host) {
-				return _.bind(service.outputs, service, tx, host);
+			var fns = _.map(app.config.onionMoneroBlockchainExplorer[networkName], function(baseUrl) {
+				return _.bind(service.outputs, service, tx, baseUrl);
 			});
 
 			async.tryEach(fns, cb);
@@ -20,8 +20,8 @@ module.exports = function(app) {
 
 		getTransactions: function(networkName, cb) {
 
-			var fns = _.map(app.config.onionMoneroBlockchainExplorer[networkName], function(host) {
-				return _.bind(service.getTransactions, service, host);
+			var fns = _.map(app.config.onionMoneroBlockchainExplorer[networkName], function(baseUrl) {
+				return _.bind(service.getTransactions, service, baseUrl);
 			});
 
 			async.tryEach(fns, cb);
