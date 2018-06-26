@@ -5,10 +5,10 @@ var async = require('async');
 var expect = require('chai').expect;
 var querystring = require('querystring');
 
-var manager = require('../../../manager');
+var manager = require('../../../../manager');
 var app = manager.app();
 
-describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK', function() {
+describe('socket.channel: v1/new-txs?network=NETWORK&address=ADDRESS', function() {
 
 	var client;
 	beforeEach(function(done) {
@@ -37,12 +37,11 @@ describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK
 
 	it('receive data', function(done) {
 
-		var address = '1234567890xyzz';
-		var channel = 'address-balance-updates?' + querystring.stringify({
-			method: network,
+		var address = '1234567890xyz';
+		var channel = 'v1/new-txs?' + querystring.stringify({
+			network: network,
 			address: address,
 		});
-		var amount = 5000000;
 
 		var receivedData;
 		client.socket.on('data', function(data) {
@@ -58,7 +57,10 @@ describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK
 			try {
 				expect(error).to.equal(null);
 				expect(receivedData).to.be.an('object');
-				expect(receivedData.amount_received).to.equal(amount);
+				expect(receivedData).to.deep.equal({
+					amount: tx.amount,
+					txid: tx.txid,
+				});
 			} catch (error) {
 				return done(error);
 			}
@@ -67,12 +69,14 @@ describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK
 		});
 
 		client.onError(done);
+
+		var tx;
 		client.subscribe(channel, function(error) {
 			if (error) return done(error);
-			var tx = {
+			tx = {
 				address: address,
 				txid: '522f87xb689c33a8306b8e6aacb7917f076536bb1ab57a274e3ee92b7b2d1be0',
-				amount: amount,
+				amount: 5000000,
 			};
 			instance.emit('tx', tx);
 		});

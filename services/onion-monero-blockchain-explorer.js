@@ -3,22 +3,22 @@
 module.exports = function(app) {
 
 	var _ = require('underscore');
-	var querystring = require('querystring');
-	var request = require('request');
 	var async = require('async');
+	var request = require('request');
+	var querystring = require('querystring');
 
 	return {
 
-		getBlockExplorerUrl: function(uri, networkHost) {
+		getBlockExplorerUrl: function(uri, baseUrl) {
 
-			return 'https://' + networkHost + uri;
+			return baseUrl + uri;
 		},
 
-		getTransactions: function(networkHost, cb) {
+		getTransactions: function(baseUrl, cb) {
 
 			async.parallel({
-				confirmed: _.bind(this.getRecentConfirmedTransactions, this, networkHost),
-				mempool: _.bind(this.getMemPoolTransactions, this, networkHost),
+				confirmed: _.bind(this.getRecentConfirmedTransactions, this, baseUrl),
+				mempool: _.bind(this.getMemPoolTransactions, this, baseUrl),
 			}, function(error, results) {
 
 				if (error) {
@@ -32,8 +32,8 @@ module.exports = function(app) {
 			});
 		},
 
-		getMemPoolTransactions: function(networkHost, cb) {
-			var uri = this.getBlockExplorerUrl('/api/mempool', networkHost);
+		getMemPoolTransactions: function(baseUrl, cb) {
+			var uri = this.getBlockExplorerUrl('/api/mempool', baseUrl);
 			request(uri, function(error, response, data) {
 				if (error) {
 					return cb(error);
@@ -47,9 +47,9 @@ module.exports = function(app) {
 			});
 		},
 
-		getRecentConfirmedTransactions: function(networkHost, cb) {
+		getRecentConfirmedTransactions: function(baseUrl, cb) {
 
-			var uri = this.getBlockExplorerUrl('/api/transactions', networkHost);
+			var uri = this.getBlockExplorerUrl('/api/transactions', baseUrl);
 
 			request(uri, function(error, response, data) {
 				if (error) {
@@ -69,9 +69,9 @@ module.exports = function(app) {
 			});
 		},
 
-		outputs: function(tx, networkHost, cb) {
+		outputs: function(tx, baseUrl, cb) {
 
-			var uri = this.getBlockExplorerUrl('/api/outputs', networkHost);
+			var uri = this.getBlockExplorerUrl('/api/outputs', baseUrl);
 
 			uri += '?' + querystring.stringify({
 				txhash: tx.txhash,

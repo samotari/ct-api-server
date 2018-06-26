@@ -3,29 +3,46 @@
 module.exports = function(app) {
 
 	var _ = require('underscore');
-	var querystring = require('querystring');
 	var request = require('request');
+	var querystring = require('querystring');
 
 	return {
-		hostname: 'https://api.coinbase.com',
 		getUri: function(uri, params) {
-			var url = this.hostname + uri;
+
+			if (!app.config.coinbase.baseUrl) {
+				return null;
+			}
+
+			var url = app.config.coinbase.baseUrl + uri;
+
 			if (!_.isEmpty(params)) {
 				url += '?' + querystring.stringify(params);
 			}
+
 			return url;
 		},
 		getExchangeRates: function(currency, cb) {
+
 			var uri = this.getUri('/v2/exchange-rates', { currency: currency });
+
+			if (!uri) {
+				return _.defer(function() {
+					cb(new Error('Cannot get exchange rates from coinbase: Missing "baseUrl"'));
+				});
+			}
+
 			request(uri, function(error, response, data) {
+
 				if (error) {
 					return cb(error);
 				}
+
 				try {
 					data = JSON.parse(data);
 				} catch (error) {
 					return cb(error);
 				}
+
 				cb(null, data);
 			});
 		},
