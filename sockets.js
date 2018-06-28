@@ -6,7 +6,6 @@ module.exports = function(app) {
 	var async = require('async');
 	var Primus = require('primus');
 	var querystring = require('querystring');
-	var WebSocket = require('uws');
 	var primus = new Primus(app.server, app.config.primus);
 	var subscriptions = {};
 

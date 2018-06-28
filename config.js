@@ -31,6 +31,10 @@ var config = module.exports = {
 			},
 		},
 	},
+	blockIO: process.env.CT_API_SERVER_BLOCK_IO ? JSON.parse(process.env.CT_API_SERVER_BLOCK_IO) : {
+		url: 'wss://n.block.io/',
+		networks: ['LTC'],
+	},
 	coinbase: process.env.CT_API_SERVER_COINBASE ? JSON.parse(process.env.CT_API_SERVER_COINBASE) : {
 		baseUrl: 'https://api.coinbase.com',
 	},
