@@ -3,7 +3,6 @@
 var _ = require('underscore');
 var async = require('async');
 var WebSocket = require('ws');
-var expect = require('chai').expect;
 
 var manager = require('../../manager');
 var app = manager.app();
