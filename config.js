@@ -31,7 +31,7 @@ var config = module.exports = {
 			},
 		},
 	},
-	blockIO: {
+	blockIO: process.env.CT_API_SERVER_BLOCK_IO ? JSON.parse(process.env.CT_API_SERVER_BLOCK_IO) : {
 		url: 'wss://n.block.io/',
 		networks: ['LTC'],
 	},
