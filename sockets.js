@@ -59,7 +59,7 @@ module.exports = function(app) {
 			var action = dataFromSpark.action || null;
 			var channel = dataFromSpark.channel || null;
 			if (!action || !channel) return;
-
+			var isMoneroTxs = channel.substr(0, 'get-monero-transactions?'.length) === 'get-monero-transactions?';
 			switch (action) {
 
 				case 'join':
@@ -76,6 +76,9 @@ module.exports = function(app) {
 					}
 					app.log('[', spark.id, ']', 'channel.join', channel);
 					spark.channelListeners[channel] = listener;
+					if (isMoneroTxs) {
+						startPollingMoneroTxs();
+					}
 					break;
 
 				case 'leave':
@@ -85,10 +88,17 @@ module.exports = function(app) {
 						app.log('[', spark.id, ']', 'channel.leave', channel);
 						delete spark.channelListeners[channel];
 					}
+					if (isMoneroTxs && !hasListeners(channel)) {
+						stopPollingMoneroTxs();
+					}
 					break;
 			}
 		});
 	});
+
+	var hasListeners = function(channel) {
+		return emitter.listeners(channel).length === 0;
+	};
 
 	var cache = {};
 
@@ -144,7 +154,15 @@ module.exports = function(app) {
 		});
 	});
 
+	var moneroPollingTimeout;
+
+	var stopPollingMoneroTxs = function() {
+		clearTimeout(moneroPollingTimeout);
+		moneroPollingTimeout = null;
+	};
+
 	var startPollingMoneroTxs = function() {
+		if (moneroPollingTimeout) return;
 		(function getMoneroTxs() {
 			async.each(['testnet', 'mainnet'], function(network, next) {
 				app.providers.monero.getTransactions(network, function(error, data) {
@@ -160,7 +178,7 @@ module.exports = function(app) {
 					next();
 				});
 			}, function() {
-				_.delay(getMoneroTxs, app.config.moneroTxs.polling.frequency);
+				moneroPollingTimeout = _.delay(getMoneroTxs, app.config.moneroTxs.polling.frequency);
 			});
 		})();
 	};
@@ -218,10 +236,6 @@ module.exports = function(app) {
 
 		if (app.config.exchangeRates.polling.init === true) {
 			startPollingExchangeRates();
-		}
-
-		if (app.config.moneroTxs.polling.init === true) {
-			startPollingMoneroTxs();
 		}
 
 		done();

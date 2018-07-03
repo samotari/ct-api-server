@@ -67,10 +67,10 @@ var config = module.exports = {
 
 	moneroTxs: {
 		polling: {
-			init: typeof process.env.CT_API_SERVER_MONERO_TXS_POLLING_INIT !== 'undefined' ? process.env.CT_API_SERVER_MONERO_TXS_POLLING_INIT !== 'false' : true,
-			frequency: 5 * 60 * 1000,
+			frequency: 4000,
 		},
 	},
+
 	poloniex: process.env.CT_API_SERVER_POLONIEX ? JSON.parse(process.env.CT_API_SERVER_POLONIEX) : {
 		baseUrl: 'https://poloniex.com',
 	},
