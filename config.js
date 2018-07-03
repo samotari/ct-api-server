@@ -64,6 +64,13 @@ var config = module.exports = {
 			timeout: 5000,
 		},
 	},
+
+	moneroTxs: {
+		polling: {
+			init: typeof process.env.CT_API_SERVER_MONERO_TXS_POLLING_INIT !== 'undefined' ? process.env.CT_API_SERVER_MONERO_TXS_POLLING_INIT !== 'false' : true,
+			frequency: 5 * 60 * 1000,
+		},
+	},
 	poloniex: process.env.CT_API_SERVER_POLONIEX ? JSON.parse(process.env.CT_API_SERVER_POLONIEX) : {
 		baseUrl: 'https://poloniex.com',
 	},

@@ -58,9 +58,10 @@ var manager = module.exports = {
 				});
 				socket.id(function(id) {
 					async.until(function() {
-						return !!app.sockets.subscriptions[channel] && !!app.sockets.subscriptions[channel][id];
+						var spark = app.sockets.primus.spark(id);
+						return !!(spark.channelListeners && spark.channelListeners[channel]);
 					}, function(next) {
-						_.delay(next, 10);
+						_.delay(next, 5);
 					}, done);
 				});
 			},
@@ -71,9 +72,10 @@ var manager = module.exports = {
 				});
 				socket.id(function(id) {
 					async.until(function() {
-						return !app.sockets.subscriptions[channel] || !app.sockets.subscriptions[channel][id];
+						var spark = app.sockets.primus.spark(id);
+						return !(spark.channelListeners && spark.channelListeners[channel]);
 					}, function(next) {
-						_.delay(next, 10);
+						_.delay(next, 5);
 					}, done);
 				});
 			},

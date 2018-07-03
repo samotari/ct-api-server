@@ -39,6 +39,10 @@ describe('socket.channel: get-monero-transactions?networkName=testnet', function
 		app.config.onionMoneroBlockchainExplorer.testnet = ['http://localhost:' + port];
 	});
 
+	before(function() {
+		app.sockets.startPollingMoneroTxs();
+	});
+
 	after(function() {
 		server.close();
 		app.config.onionMoneroBlockchainExplorer.testnet = [];

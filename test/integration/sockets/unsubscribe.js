@@ -51,9 +51,9 @@ describe('socket', function() {
 			it('only unsubscribes the client that requested to be unsubscribed', function(done) {
 				client.unsubscribe(channel, function(error) {
 					if (error) return done(error);
-					expect(!_.isEmpty(app.sockets.subscriptions[channel])).to.equal(true);
 					anotherClient.socket.id(function(id) {
-						expect(app.sockets.subscriptions[channel][id]).to.not.be.undefined;
+						var spark = app.sockets.primus.spark(id);
+						expect(spark.channelListeners[channel]).to.not.be.undefined;
 						done();
 					});
 				});

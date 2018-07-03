@@ -26,6 +26,7 @@ module.exports = function(grunt) {
 				},
 			}),
 			CT_API_SERVER_EXCHANGE_RATES_POLLING_INIT: 'false',
+			CT_API_SERVER_MONERO_TXS_POLLING_INIT: 'false',
 			CT_API_SERVER_BLOCK_IO: JSON.stringify({}),
 		}
 	};
