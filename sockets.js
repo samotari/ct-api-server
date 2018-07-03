@@ -19,12 +19,19 @@ module.exports = function(app) {
 
 	primus.on('connection', function(spark) {
 
-		app.log('socket', spark.id, 'connection');
+		app.log('socket.connection', spark.id);
 
 		spark.once('end', function() {
-			app.log('socket', spark.id, 'end');
+			app.log('socket.end', spark.id);
 			spark.removeAllListeners('data');
+			spark.unsubscribeFromAllChannels();
 		});
+
+		spark.unsubscribeFromAllChannels = function() {
+			_.each(spark.channelListeners, function(listener, channel) {
+				emitter.removeListener(channel, listener);
+			});
+		};
 
 		// Send an error to the socket client.
 		spark.error = function(error) {
@@ -64,6 +71,7 @@ module.exports = function(app) {
 					if (cache[channel]) {
 						listener(cache[channel]);
 					}
+					app.log('channel.join', spark.id, channel);
 					spark.channelListeners[channel] = listener;
 					break;
 
@@ -71,6 +79,7 @@ module.exports = function(app) {
 					var listener = spark.channelListeners[channel] || null;
 					if (listener) {
 						emitter.removeListener(channel, listener);
+						app.log('channel.leave', spark.id, channel);
 						delete spark.channelListeners[channel];
 					}
 					break;
