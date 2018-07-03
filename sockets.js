@@ -12,6 +12,9 @@ module.exports = function(app) {
 	// Global event bus.
 	var emitter = new EventEmitter;
 
+	// Set no limit on the number of event listeners.
+	emitter.setMaxListeners(Infinity);
+
 	var isValidChannel = function(channel) {
 
 		return _.isString(channel);
