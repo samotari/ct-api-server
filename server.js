@@ -8,6 +8,7 @@ process.title = pkg.name.replace(/-/g, '_');
 
 var express = require('express');
 var app = module.exports = express();
+app.disable('x-powered-by');
 
 app.config = require('./config');
 app.lib = require('./lib');
