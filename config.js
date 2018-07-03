@@ -53,13 +53,9 @@ var config = module.exports = {
 				{ url: 'https://insight.bitpay.com' },
 			],
 			bitcoinTestnet: [
-				{ url: 'https://testnet-bitcore1.trezor.io' },
-				{ url: 'https://testnet-bitcore2.trezor.io' },
 				{ url: 'https://test-insight.bitpay.com' },
 			],
 			litecoin: [
-				{ url: 'https://ltc-bitcore1.trezor.io' },
-				{ url: 'https://ltc-bitcore2.trezor.io' },
 				{ url: 'https://insight.litecore.io' },
 			],
 			litecoinTestnet: [],
