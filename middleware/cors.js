@@ -14,7 +14,7 @@ module.exports = function(app) {
 			res.header('Access-Control-Allow-Headers', 'Authorization, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, Origin');
 		}
 
-		res.header('Access-Control-Allow-Origin', req.headers.origin);
+		res.header('Access-Control-Allow-Origin', req.headers['origin'] || '*');
 		next();
 	});
 };
