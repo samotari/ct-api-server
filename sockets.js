@@ -61,10 +61,18 @@ module.exports = function(app) {
 			Spark.prototype.isInChannel = function(channel) {
 				return this.channels[channel] === true;
 			};
+			Spark.prototype.cleanUpChannels = function(channel) {
+				this.channels = _.chain(this.channels).map(function(value, channel) {
+					return !_.isNull(value) ? [channel, true]: null;
+				}).compact().object().value();
+			};
 			Spark.prototype.leaveAllChannels = function() {
 				_.each(this.channels, function(value, channel) {
-					this.leave(channel);
+					if (!_.isNull(value)) {
+						this.leave(channel);
+					}
 				}, this);
+				this.cleanUpChannels();
 			};
 		}
 	});
