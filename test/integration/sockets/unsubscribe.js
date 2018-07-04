@@ -53,7 +53,7 @@ describe('socket', function() {
 					if (error) return done(error);
 					anotherClient.socket.id(function(id) {
 						var spark = app.sockets.primus.spark(id);
-						expect(spark.channelListeners[channel]).to.not.be.undefined;
+						expect(spark.isInChannel(channel)).to.equal(true);
 						done();
 					});
 				});

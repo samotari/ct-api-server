@@ -4,101 +4,132 @@ module.exports = function(app) {
 
 	var _ = require('underscore');
 	var async = require('async');
-	var EventEmitter = require('events').EventEmitter || require('events');
 	var Primus = require('primus');
 	var querystring = require('querystring');
 	var primus = new Primus(app.server, app.config.primus);
 
-	// Global event bus.
-	var emitter = new EventEmitter;
-
-	// Set no limit on the number of event listeners.
-	emitter.setMaxListeners(Infinity);
-
-	var isValidChannel = function(channel) {
-
-		return _.isString(channel);
+	// Channel hash containing the spark ID of clients in each channel.
+	var channels = {};
+	var broadcastToChannel = function(channel, data) {
+		_.each(channels[channel] || {}, function(value, id) {
+			var spark = primus.spark(id);
+			spark.writeChannelData(channel, data);
+		});
 	};
+	var channelHasParticipants = function(channel) {
+		return _.some(channels[channel] || {}, function() {
+			return true;
+		});
+	};
+
+	// Add channel functionality to primus.
+	primus.plugin('channels', {
+		server: function(primus) {
+			var Spark = primus.Spark;
+			Spark.prototype.writeChannelData = function(channel, data) {
+				this.write({
+					channel: channel,
+					data: data,
+				});
+			};
+			Spark.prototype.join = function(channel) {
+				channels[channel] = channels[channel] || {};
+				channels[channel][this.id] = true;
+				this.channels = this.channels || {};
+				this.channels[channel] = true;
+				// If there is cached data for this channel, send it immediately to this spark.
+				if (cache[channel]) {
+					this.writeChannelData(channel, cache[channel]);
+				}
+				app.log('[' + this.id + ']', 'channel.join', channel);
+				var isMoneroTxs = channel.substr(0, 'get-monero-transactions?'.length) === 'get-monero-transactions?';
+				if (isMoneroTxs) {
+					startPollingMoneroTxs();
+				}
+			};
+			Spark.prototype.leave = function(channel) {
+				channels[channel] = channels[channel] || {};
+				channels[channel][this.id] = null;
+				this.channels = this.channels || {};
+				this.channels[channel] = null;
+				app.log('[' + this.id + ']', 'channel.leave', channel);
+				var isMoneroTxs = channel.substr(0, 'get-monero-transactions?'.length) === 'get-monero-transactions?';
+				if (isMoneroTxs && !channelHasParticipants(channel)) {
+					stopPollingMoneroTxs();
+				}
+			};
+			Spark.prototype.isInChannel = function(channel) {
+				return this.channels[channel] === true;
+			};
+			Spark.prototype.leaveAllChannels = function() {
+				_.each(this.channels, function(value, channel) {
+					this.leave(channel);
+				}, this);
+			};
+		}
+	});
+
+	// More custom functionality for primus.
+	primus.plugin('custom', {
+		server: function(primus) {
+			var Spark = primus.Spark;
+			Spark.prototype.error = function(error) {
+				app.log('[' + this.id + ']', 'socket.error', error);
+				if (_.isObject(error) && error.message) {
+					error = error.message;
+				}
+				// Only send error strings to the client.
+				if (_.isString(error)) {
+					this.write({
+						error: error,
+					});
+				}
+			};
+		}
+	});
+
+	// Periodically clean-up the channels object.
+	setInterval(function() {
+		channels = _.chain(channels).map(function(idsHash, channel) {
+			idsHash = _.chain(idsHash).map(function(value, id) {
+				return !_.isNull(value) ? [id, true]: null;
+			}).compact().object().value();
+			return !_.isEmpty(idsHash) ? [channel, idsHash] : null;
+		}).compact().object().value();
+	}, 30000);
 
 	primus.on('connection', function(spark) {
 
-		app.log('[', spark.id, ']', 'socket.connection');
+		app.log('[' + spark.id + ']', 'socket.connection');
 
 		spark.once('end', function() {
-			app.log('[', spark.id, ']', 'socket.end');
+			app.log('[' + spark.id + ']', 'socket.end');
 			spark.removeAllListeners('data');
-			spark.unsubscribeFromAllChannels();
+			spark.leaveAllChannels();
 		});
-
-		spark.unsubscribeFromAllChannels = function() {
-			_.each(spark.channelListeners, function(listener, channel) {
-				emitter.removeListener(channel, listener);
-			});
-		};
-
-		// Send an error to the socket client.
-		spark.error = function(error) {
-
-			app.log('[', spark.id, ']', 'socket.error', error);
-
-			if (_.isObject(error) && error.message) {
-				error = error.message;
-			}
-
-			// Only send error strings to the client.
-			if (_.isString(error)) {
-				spark.write({
-					error: error,
-				});
-			}
-		};
 
 		spark.on('data', function(dataFromSpark) {
 
-			spark.channelListeners = spark.channelListeners || {};
 			var action = dataFromSpark.action || null;
 			var channel = dataFromSpark.channel || null;
 			if (!action || !channel) return;
-			var isMoneroTxs = channel.substr(0, 'get-monero-transactions?'.length) === 'get-monero-transactions?';
+
 			switch (action) {
 
 				case 'join':
-					var listener = function(data) {
-						spark.write({
-							channel: channel,
-							data: data,
-						});
-					};
-					emitter.on(channel, listener);
-					// If there is cached data for this channel, send it immediately.
-					if (cache[channel]) {
-						listener(cache[channel]);
-					}
-					app.log('[', spark.id, ']', 'channel.join', channel);
-					spark.channelListeners[channel] = listener;
-					if (isMoneroTxs) {
-						startPollingMoneroTxs();
-					}
+					spark.join(channel);
 					break;
 
 				case 'leave':
-					var listener = spark.channelListeners[channel] || null;
-					if (listener) {
-						emitter.removeListener(channel, listener);
-						app.log('[', spark.id, ']', 'channel.leave', channel);
-						delete spark.channelListeners[channel];
-					}
-					if (isMoneroTxs && !hasListeners(channel)) {
-						stopPollingMoneroTxs();
-					}
+					spark.leave(channel);
+					break;
+
+				default:
+					app.log('[' + spark.id + ']', 'unknown action', action);
 					break;
 			}
 		});
 	});
-
-	var hasListeners = function(channel) {
-		return emitter.listeners(channel).length === 0;
-	};
 
 	var cache = {};
 
@@ -127,7 +158,7 @@ module.exports = function(app) {
 			};
 
 			_.each(channels, function(channel) {
-				emitter.emit(channel, data);
+				broadcastToChannel(channel, data);
 			});
 		});
 
@@ -149,7 +180,7 @@ module.exports = function(app) {
 			var data = { amount_received: tx.amount };
 
 			_.each(channels, function(channel) {
-				emitter.emit(channel, data);
+				broadcastToChannel(channel, data);
 			});
 		});
 	});
@@ -174,7 +205,7 @@ module.exports = function(app) {
 						networkName: network,
 					});
 					cache[channel] = data;
-					emitter.emit(channel, data);
+					broadcastToChannel(channel, data);
 					next();
 				});
 			}, function() {
@@ -192,7 +223,7 @@ module.exports = function(app) {
 				}
 				var channel = 'exchange-rates';
 				cache[channel] = data;
-				emitter.emit(channel, data);
+				broadcastToChannel(channel, data);
 				_.delay(getExchangeRates, app.config.exchangeRates.polling.frequency);
 			});
 		})();
@@ -242,7 +273,10 @@ module.exports = function(app) {
 	});
 
 	return {
+		broadcastToChannel: broadcastToChannel,
 		cache: cache,
+		channelHasParticipants: channelHasParticipants,
+		channels: channels,
 		primus: primus,
 		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		startPollingExchangeRates: startPollingExchangeRates,

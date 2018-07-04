@@ -59,7 +59,7 @@ var manager = module.exports = {
 				socket.id(function(id) {
 					async.until(function() {
 						var spark = app.sockets.primus.spark(id);
-						return !!(spark.channelListeners && spark.channelListeners[channel]);
+						return spark.isInChannel(channel);
 					}, function(next) {
 						_.delay(next, 5);
 					}, done);
@@ -73,7 +73,7 @@ var manager = module.exports = {
 				socket.id(function(id) {
 					async.until(function() {
 						var spark = app.sockets.primus.spark(id);
-						return !(spark.channelListeners && spark.channelListeners[channel]);
+						return !spark.isInChannel(channel);
 					}, function(next) {
 						_.delay(next, 5);
 					}, done);
