@@ -6,20 +6,29 @@ module.exports = function(app) {
 	var async = require('async');
 	var Primus = require('primus');
 	var querystring = require('querystring');
+
 	var primus = new Primus(app.server, app.config.primus);
 
 	// Channel hash containing the spark ID of clients in each channel.
 	var channels = {};
+
 	var broadcastToChannel = function(channel, data) {
 		_.each(channels[channel] || {}, function(value, id) {
 			var spark = primus.spark(id);
 			spark.writeChannelData(channel, data);
 		});
 	};
+
 	var channelHasParticipants = function(channel) {
 		return _.some(channels[channel] || {}, function() {
 			return true;
 		});
+	};
+
+	var parseChannelParams = function(channel) {
+		var delimiterPos = channel.indexOf('?');
+		if (delimiterPos === -1) return {};
+		return querystring.parse(channel.substr(delimiterPos + 1));
 	};
 
 	// Add channel functionality to primus.
@@ -45,6 +54,15 @@ module.exports = function(app) {
 				var isMoneroTxs = channel.substr(0, 'get-monero-transactions?'.length) === 'get-monero-transactions?';
 				if (isMoneroTxs) {
 					startPollingMoneroTxs();
+				}
+				var isBitcoinLikeTxs = channel.substr(0, 'v1/new-txs?'.length) === 'v1/new-txs?';
+				if (isBitcoinLikeTxs && app.config.bitcoin.rebroadCastRecentTxs.enable) {
+					var params = parseChannelParams(channel);
+					var maxAge = app.config.bitcoin.rebroadCastRecentTxs.maxAge;
+					var recentTxs = app.providers.bitcoin.getRecentTxsForAddress(params.address, maxAge);
+					_.each(recentTxs, function(tx) {
+						this.writeChannelData(channel, tx);
+					}, this);
 				}
 			};
 			Spark.prototype.leave = function(channel) {
@@ -148,48 +166,23 @@ module.exports = function(app) {
 		// New transactions for a given address and network.
 		provider.on('tx', function(tx) {
 
-			var channels = [
-				'v1/new-txs?' + querystring.stringify({
-					address: tx.address,
-					network: network,
-				}),
-				// The second channel name has the parameters in the opposite order.
-				'v1/new-txs?' + querystring.stringify({
-					network: network,
-					address: tx.address,
-				}),
-			];
-
+			var channel = 'v1/new-txs?' + querystring.stringify({
+				address: tx.address,
+				network: network,
+			});
 			var data = {
 				amount: tx.amount,
 				txid: tx.txid,
 			};
+			broadcastToChannel(channel, data);
 
-			_.each(channels, function(channel) {
-				broadcastToChannel(channel, data);
+			// Keep the following for temporary backwards compatibility.
+			var legacyChannel = 'address-balance-updates?' + querystring.stringify({
+				address: tx.address,
+				method: network,
 			});
-		});
-
-		// Keep the following for temporary backwards compatibility.
-		provider.on('tx', function(tx) {
-
-			var channels = [
-				'address-balance-updates?' + querystring.stringify({
-					address: tx.address,
-					method: network,
-				}),
-				// The second channel name has the parameters in the opposite order.
-				'address-balance-updates?' + querystring.stringify({
-					method: network,
-					address: tx.address,
-				}),
-			];
-
-			var data = { amount_received: tx.amount };
-
-			_.each(channels, function(channel) {
-				broadcastToChannel(channel, data);
-			});
+			var legacyData = { amount_received: tx.amount };
+			broadcastToChannel(legacyChannel, legacyData);
 		});
 	});
 
