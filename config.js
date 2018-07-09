@@ -11,6 +11,12 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
+	bitcoin: {
+		rebroadCastRecentTxs: {
+			enable: true,
+			maxAge: 5000,
+		},
+	},
 	exchangeRates: {
 		polling: {
 			init: typeof process.env.CT_API_SERVER_EXCHANGE_RATES_POLLING_INIT !== 'undefined' ? process.env.CT_API_SERVER_EXCHANGE_RATES_POLLING_INIT !== 'false' : true,

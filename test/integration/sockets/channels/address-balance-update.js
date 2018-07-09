@@ -39,8 +39,8 @@ describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK
 
 		var address = '1234567890xyzz';
 		var channel = 'address-balance-updates?' + querystring.stringify({
-			method: network,
 			address: address,
+			method: network,
 		});
 		var amount = 5000000;
 
