@@ -14,8 +14,9 @@ module.exports = function(app) {
 
 	var broadcastToChannel = function(channel, data) {
 		_.each(channels[channel] || {}, function(value, id) {
+			if (_.isNull(value)) return;
 			var spark = primus.spark(id);
-			spark.writeChannelData(channel, data);
+			spark && spark.writeChannelData(channel, data);
 		});
 	};
 
@@ -35,6 +36,27 @@ module.exports = function(app) {
 	primus.plugin('channels', {
 		server: function(primus) {
 			var Spark = primus.Spark;
+			Spark.prototype.onData = function(data) {
+				var action = data.action || null;
+				var channel = data.channel || null;
+				if (!action || !channel) return;
+				switch (action) {
+					case 'join':
+						this.join(channel);
+						break;
+					case 'leave':
+						this.leave(channel);
+						break;
+					default:
+						app.log('[' + this.id + ']', 'unknown action', action);
+						break;
+				}
+			};
+			Spark.prototype.onDisconnect = function() {
+				app.log('[' + this.id + ']', 'socket disconnected');
+				this.removeAllListeners('data');
+				this.leaveAllChannels();
+			};
 			Spark.prototype.writeChannelData = function(channel, data) {
 				this.write({
 					channel: channel,
@@ -125,36 +147,9 @@ module.exports = function(app) {
 	}, 30000);
 
 	primus.on('connection', function(spark) {
-
-		app.log('[' + spark.id + ']', 'socket.connection');
-
-		spark.once('end', function() {
-			app.log('[' + spark.id + ']', 'socket.end');
-			spark.removeAllListeners('data');
-			spark.leaveAllChannels();
-		});
-
-		spark.on('data', function(dataFromSpark) {
-
-			var action = dataFromSpark.action || null;
-			var channel = dataFromSpark.channel || null;
-			if (!action || !channel) return;
-
-			switch (action) {
-
-				case 'join':
-					spark.join(channel);
-					break;
-
-				case 'leave':
-					spark.leave(channel);
-					break;
-
-				default:
-					app.log('[' + spark.id + ']', 'unknown action', action);
-					break;
-			}
-		});
+		app.log('[' + spark.id + ']', 'socket connected');
+		spark.once('end', spark.onDisconnect.bind(spark));
+		spark.on('data', spark.onData.bind(spark));
 	});
 
 	var cache = {};
