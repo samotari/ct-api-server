@@ -50,5 +50,13 @@ module.exports = function(app) {
 
 	})();
 
+	// Periodically log connection status.
+	setInterval(function() {
+		var instance = service.instance;
+		var uri = instance.options.url;
+		var isConnected = instance.connected === true;
+		app.log('BlockIO connection status (' + uri + '):', isConnected ? 'OK' : 'DISCONNECTED');
+	}, 5 * 60 * 1000);
+
 	return service;
 };

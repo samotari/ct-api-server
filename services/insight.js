@@ -50,11 +50,12 @@ module.exports = function(app) {
 		});
 	});
 
-	// Periodically log the connection status of all insight instances.
+	// Periodically log connection status.
 	setInterval(function() {
 		_.each(service.instances, function(instance) {
 			var uri = instance.options.url;
-			app.log('Insight connection status (' + uri + '):', instance.socket.connected ? 'OK' : 'DISCONNECTED');
+			var isConnected = instance.socket.connected === true;
+			app.log('Insight connection status (' + uri + '):', isConnected ? 'OK' : 'DISCONNECTED');
 		});
 	}, 5 * 60 * 1000);
 

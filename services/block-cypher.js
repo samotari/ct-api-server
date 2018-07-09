@@ -46,5 +46,14 @@ module.exports = function(app) {
 	_.bindAll(service, 'addInstance');
 	_.each(app.config.blockCypher.networks, service.addInstance);
 
+	// Periodically log connection status.
+	setInterval(function() {
+		_.each(service.instances, function(instance) {
+			var uri = instance.options.url;
+			var isConnected = instance.connected === true;
+			app.log('BlockCypher connection status (' + uri + '):', isConnected ? 'OK' : 'DISCONNECTED');
+		});
+	}, 5 * 60 * 1000);
+
 	return service;
 };
