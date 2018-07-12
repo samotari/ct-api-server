@@ -81,12 +81,9 @@ describe('socket.channel: exchange-rates', function() {
 				return done(error);
 			}
 
-			var supportedDisplayCurrencies = _.chain(app.config.supportedDisplayCurrencies).clone().sortBy(_.identity).value();
-
 			try {
 				expect(receivedData).to.be.an('object');
-				expect(receivedData['BTC']).to.equal('1.00000000');
-				expect(_.keys(receivedData)).to.deep.equal(supportedDisplayCurrencies);
+				expect(receivedData['BTC']).to.equal('1');
 			} catch (error) {
 				return done(error);
 			}

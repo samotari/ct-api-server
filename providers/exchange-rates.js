@@ -6,6 +6,10 @@ module.exports = function(app) {
 	var async = require('async');
 	var BigNumber = require('bignumber.js');
 
+	var supportedDisplayCurrencies = _.chain(app.config.supportedDisplayCurrencies).clone().map(function(code) {
+		return [code, true];
+	}).object().value();
+
 	return function(cb) {
 
 		async.parallel({
@@ -22,15 +26,14 @@ module.exports = function(app) {
 			}
 
 			try {
-				var rates = {};
-				_.each(results.coinbase.data.rates, function(rate, code) {
-					code = code.toUpperCase();
-					if (_.contains(app.config.supportedDisplayCurrencies, code)) {
-						rates[code] = rate;
-					}
-				});
+				var rates = _.chain(results.coinbase.data.rates).map(function(rate, code) {
+					if (!supportedDisplayCurrencies[code]) return null;
+					// Remove trailing zeros.
+					rate = (new BigNumber(rate)).toString();
+					return [code, rate];
+				}).compact().object().value();
 				var xmrToBtcRate = new BigNumber(results.poloniex.BTC_XMR.last);
-				rates['XMR'] = (new BigNumber(rates['BTC'])).dividedBy(xmrToBtcRate).toString();
+				rates['XMR'] = (new BigNumber(rates['BTC'])).dividedBy(xmrToBtcRate).toPrecision(12).toString();
 			} catch (error) {
 				return cb(error);
 			}
