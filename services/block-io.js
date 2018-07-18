@@ -18,6 +18,7 @@ module.exports = function(app) {
 		var uri = app.config.blockIO.url;
 
 		var instance = new app.lib.BlockIO({
+			debug: app.config.debug,
 			url: uri,
 			networks: app.config.blockIO.networks,
 		});

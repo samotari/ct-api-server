@@ -12,6 +12,10 @@ module.exports = function(app) {
 
 		addInstance: function(options, network) {
 
+			options = _.extend({}, options, {
+				debug: app.config.debug,
+			});
+
 			var instance = new app.lib.BlockCypher(options);
 			var uri = options.url;
 

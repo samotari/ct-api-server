@@ -6,7 +6,7 @@
       "instances": 1,
       "exec_mode": "fork",
       "max_memory_restart": "512M",
-      "log_date_format": "YYYY-MM-DD HH:mm:SS Z",
+      "log_date_format": "YYYY-MM-DD HH:mm:ss",
       "error_file": "error.log",
       "out_file": "output.log",
       "watch": false
