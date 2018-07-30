@@ -16,6 +16,17 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
+	zeromq: {
+		// bitcoin: [
+		// 	'tcp://127.0.0.1:3611',
+		// ],
+		bitcoinTestnet: [
+			'tcp://127.0.0.1:3621',
+		],
+		// litecoin: [
+		// 	'tcp://127.0.0.1:3631',
+		// ],
+	},
 	bitcoin: {
 		rebroadCastRecentTxs: {
 			enable: true,
@@ -34,9 +45,9 @@ var config = module.exports = {
 			bitcoin: {
 				url: 'wss://socket.blockcypher.com/v1/btc/main',
 			},
-			bitcoinTestnet: {
-				url: 'wss://socket.blockcypher.com/v1/btc/test3',
-			},
+			// bitcoinTestnet: {
+			// 	url: 'wss://socket.blockcypher.com/v1/btc/test3',
+			// },
 			litecoin: {
 				url: 'wss://socket.blockcypher.com/v1/ltc/main',
 			},
@@ -63,9 +74,9 @@ var config = module.exports = {
 			bitcoin: [
 				{ url: 'https://insight.bitpay.com' },
 			],
-			bitcoinTestnet: [
-				{ url: 'https://test-insight.bitpay.com' },
-			],
+			// bitcoinTestnet: [
+			// 	{ url: 'https://test-insight.bitpay.com' },
+			// ],
 			litecoin: [
 				{ url: 'https://insight.litecore.io' },
 			],
