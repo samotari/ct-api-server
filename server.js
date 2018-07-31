@@ -10,6 +10,18 @@ var express = require('express');
 var app = module.exports = express();
 app.disable('x-powered-by');
 
+app.log = function() {
+	if (process.env.NODE_ENV === 'test') return;
+	console.log.apply(console, arguments);
+};
+
+app.error = function(error) {
+	if (!(error instanceof Error)) {
+		error = new Error(error);
+	}
+	console.error(error.stack);
+};
+
 app.config = require('./config');
 app.lib = require('./lib');
 app.queues = require('./queues')(app);
@@ -52,18 +64,6 @@ app.use(function(error, req, res, next) {
 
 	next();
 });
-
-app.log = function() {
-	if (process.env.NODE_ENV === 'test') return;
-	console.log.apply(console, arguments);
-};
-
-app.error = function(error) {
-	if (!(error instanceof Error)) {
-		error = new Error(error);
-	}
-	console.error(error.stack);
-};
 
 app.onStart(function(done) {
 	app.server = app.listen(app.config.port, app.config.host, function() {
