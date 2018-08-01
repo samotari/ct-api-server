@@ -16,16 +16,22 @@ var config = module.exports = {
 		transformer: 'uws',
 		pingInterval: 5000,
 	},
-	zeromq: {
-		// bitcoin: [
-		// 	'tcp://127.0.0.1:3611',
-		// ],
-		bitcoinTestnet: [
-			'tcp://127.0.0.1:3621',
+	zeromq: process.env.CT_API_SERVER_ZEROMQ ? JSON.parse(process.env.CT_API_SERVER_ZEROMQ) : {
+	// Examples as follows:
+	/*
+		bitcoin: [
+			'tcp://127.0.0.1:7000',
 		],
-		// litecoin: [
-		// 	'tcp://127.0.0.1:3631',
-		// ],
+		bitcoinTestnet: [
+			'tcp://127.0.0.1:7010',
+		],
+		litecoin: [
+			'tcp://127.0.0.1:7020',
+		],
+		litecoinTestnet: [
+			'tcp://127.0.0.1:7030',
+		],
+	*/
 	},
 	bitcoin: {
 		rebroadCastRecentTxs: {
