@@ -64,7 +64,6 @@ module.exports = function(app) {
 			try {
 				var address = bitcoin.address.fromOutputScript(out.script, network);
 			} catch (error) {
-				app.log(error);
 				return null;
 			}
 			return {
