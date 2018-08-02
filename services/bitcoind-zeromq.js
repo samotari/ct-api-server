@@ -15,6 +15,12 @@ module.exports = function(app) {
 	var networks = {
 		bitcoin: bitcoin.networks.bitcoin,
 		bitcoinTestnet: bitcoin.networks.testnet,
+		litecoin: {
+			bech32: 'ltc',
+			pubKeyHash: 48,
+			scriptHash: 50,
+			wif: 128,
+		},
 	};
 
 	var BitcoindZeroMQ = function(options) {
