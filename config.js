@@ -48,20 +48,21 @@ var config = module.exports = {
 	},
 	blockCypher: process.env.CT_API_SERVER_BLOCK_CYPHER ? JSON.parse(process.env.CT_API_SERVER_BLOCK_CYPHER) : {
 		networks: {
-			bitcoin: {
-				url: 'wss://socket.blockcypher.com/v1/btc/main',
-			},
+			// bitcoin: {
+			// 	url: 'wss://socket.blockcypher.com/v1/btc/main',
+			// },
 			// bitcoinTestnet: {
 			// 	url: 'wss://socket.blockcypher.com/v1/btc/test3',
 			// },
-			litecoin: {
-				url: 'wss://socket.blockcypher.com/v1/ltc/main',
-			},
+			// litecoin: {
+			// 	url: 'wss://socket.blockcypher.com/v1/ltc/main',
+			// },
 		},
 	},
 	blockIO: process.env.CT_API_SERVER_BLOCK_IO ? JSON.parse(process.env.CT_API_SERVER_BLOCK_IO) : {
 		url: 'wss://n.block.io/',
-		networks: ['BTC', 'LTC'],
+		networks: [],
+		// networks: ['BTC', 'LTC'],
 	},
 	coinbase: process.env.CT_API_SERVER_COINBASE ? JSON.parse(process.env.CT_API_SERVER_COINBASE) : {
 		baseUrl: 'https://api.coinbase.com',
@@ -77,16 +78,16 @@ var config = module.exports = {
 	},
 	insight: process.env.CT_API_SERVER_INSIGHT ? JSON.parse(process.env.CT_API_SERVER_INSIGHT) : {
 		hosts: {
-			bitcoin: [
-				{ url: 'https://insight.bitpay.com' },
-			],
+			// bitcoin: [
+			// 	{ url: 'https://insight.bitpay.com' },
+			// ],
 			// bitcoinTestnet: [
 			// 	{ url: 'https://test-insight.bitpay.com' },
 			// ],
-			litecoin: [
-				{ url: 'https://insight.litecore.io' },
-			],
-			litecoinTestnet: [],
+			// litecoin: [
+			// 	{ url: 'https://insight.litecore.io' },
+			// ],
+			// litecoinTestnet: [],
 		},
 		listenToAddress: {
 			timeout: 5000,
