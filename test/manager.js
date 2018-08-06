@@ -12,6 +12,7 @@ var Client = require('./client');
 var manager = module.exports = {
 
 	config: app.config,
+	fixtures: require('./fixtures'),
 
 	url: function(uri) {
 
