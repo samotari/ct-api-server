@@ -83,6 +83,15 @@ var manager = module.exports = {
 			socket: socket,
 		};
 	},
+
+	waitFor: function(test, cb) {
+		async.until(
+			test,
+			function(next) { _.delay(next, 5) },
+			cb
+		);
+	},
+
 };
 
 // Global hooks:

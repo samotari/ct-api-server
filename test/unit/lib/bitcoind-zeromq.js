@@ -3,6 +3,7 @@
 var _ = require('underscore');
 var async = require('async');
 var expect = require('chai').expect;
+var express = require('express');
 var zmq = require('zeromq');
 
 var manager = require('../../manager');
@@ -24,7 +25,7 @@ describe('BitcoindZeroMQ', function() {
 				pubs[network] = pub;
 				var instance = new BitcoindZeroMQ({
 					network: network,
-					url: addr,
+					dataUrl: addr,
 				});
 				instances[network] = instance;
 			});
@@ -123,4 +124,78 @@ describe('BitcoindZeroMQ', function() {
 			});
 		});
 	});
+
+	describe('status check', function() {
+
+		var port = 3700;
+		var server;
+		var status = 200;
+		var setState = function(active) {
+			status = active ? 200 : 404;
+		}
+
+		before(function() {
+			var tmpApp = express();
+			server = tmpApp.listen(port, 'localhost');
+			tmpApp.get('/', function(req, res, next) {
+				res.sendStatus(status);
+			})
+		})
+
+		var instance;
+		before(function() {
+			var statusUrl = 'http://localhost:' + port;
+			instance = new BitcoindZeroMQ({
+				network: {},
+				statusUrl: statusUrl,
+				statusPollInterval: 5,
+			});
+		});
+
+		after(function() {
+			instance.close();
+		});
+
+		after(function() {
+			server.close();
+		});
+
+		describe('when instance is active and goes inactive', function() {
+
+			before(function() {
+				setState(true);
+			});
+
+			it('it should change active to be false', function(done) {
+
+				var test = function() { return instance.active };
+				manager.waitFor(test, function() {
+					setState(false);
+					test = function() { return !instance.active };
+					manager.waitFor(test, done);
+				});
+			});
+
+		});
+
+		describe('when instance is inactive and goes active', function() {
+
+			before(function() {
+				setState(false);
+			});
+
+			it('it should change active to be true', function(done) {
+
+				var test = function() { return !instance.active };
+				manager.waitFor(test, function() {
+					setState(true);
+					test = function() { return instance.active };
+					manager.waitFor(test, done);
+				});
+			});
+
+		});
+
+	});
+
 });
