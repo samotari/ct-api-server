@@ -16,7 +16,7 @@ var config = module.exports = {
 	},
 	primus: {
 		pathname: '/primus',
-		transformer: 'uws',
+		transformer: 'websockets',
 		pingInterval: 5000,
 	},
 	zeromq: process.env.CT_API_SERVER_ZEROMQ ? JSON.parse(process.env.CT_API_SERVER_ZEROMQ) : {
