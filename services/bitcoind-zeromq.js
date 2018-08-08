@@ -13,7 +13,8 @@ module.exports = function(app) {
 		_.each(socketUrls, function(url) {
 			var instance = new app.lib.BitcoindZeroMQ({
 				network: network,
-				url: url,
+				dataUrl: url.dataUrl,
+				statusUrl: url.statusUrl
 			});
 			instance.on('tx', function(tx) {
 				tx = _.pick(tx, 'address', 'amount', 'txid');
@@ -22,6 +23,15 @@ module.exports = function(app) {
 			service.instances.push(instance);
 		});
 	});
+
+	// Periodically log connection status.
+	setInterval(function() {
+		_.each(service.instances, function(instance) {
+			var url = instance.options.statusUrl;
+			var isActive = instance.active === true;
+			app.log('ZeroMQ connection status (' + url + '):', isActive ? 'ACTIVE' : 'INACTIVE');
+		});
+	}, app.config.logs.interval);
 
 	return service;
 };

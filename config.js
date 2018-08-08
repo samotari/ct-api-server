@@ -11,6 +11,9 @@ var config = module.exports = {
 		'AED', 'AFN', 'ALL', 'AMD', 'ANG', 'AOA', 'ARS', 'AUD', 'AWG', 'AZN', 'BAM', 'BBD', 'BDT', 'BGN', 'BHD', 'BIF', 'BMD', 'BND', 'BOB', 'BOV', 'BRL', 'BSD', 'BTN', 'BWP', 'BYN', 'BZD', 'CAD', 'CDF', 'CHE', 'CHF', 'CHW', 'CLF', 'CLP', 'CNY', 'COP', 'COU', 'CRC', 'CUC', 'CUP', 'CVE', 'CZK', 'DJF', 'DKK', 'DOP', 'DZD', 'EGP', 'ERN', 'ETB', 'EUR', 'FJD', 'FKP', 'GBP', 'GEL', 'GHS', 'GIP', 'GMD', 'GNF', 'GTQ', 'GYD', 'HKD', 'HNL', 'HRK', 'HTG', 'HUF', 'IDR', 'ILS', 'INR', 'IQD', 'IRR', 'ISK', 'JMD', 'JOD', 'JPY', 'KES', 'KGS', 'KHR', 'KMF', 'KPW', 'KRW', 'KWD', 'KYD', 'KZT', 'LAK', 'LBP', 'LKR', 'LRD', 'LSL', 'LYD', 'MAD', 'MDL', 'MGA', 'MKD', 'MMK', 'MNT', 'MOP', 'MRU', 'MUR', 'MVR', 'MWK', 'MXN', 'MXV', 'MYR', 'MZN', 'NAD', 'NGN', 'NIO', 'NOK', 'NPR', 'NZD', 'OMR', 'PAB', 'PEN', 'PGK', 'PHP', 'PKR', 'PLN', 'PYG', 'QAR', 'RON', 'RSD', 'RUB', 'RWF', 'SAR', 'SBD', 'SCR', 'SDG', 'SEK', 'SGD', 'SHP', 'SLL', 'SOS', 'SRD', 'SSP', 'STN', 'SVC', 'SYP', 'SZL', 'THB', 'TJS', 'TMT', 'TND', 'TOP', 'TRY', 'TTD', 'TWD', 'TZS', 'UAH', 'UGX', 'USD', 'USN', 'UYI', 'UYU', 'UZS', 'VEF', 'VND', 'VUV', 'WST', 'XAF', 'XAG', 'XAU', 'XBA', 'XBB', 'XBC', 'XBD', 'XCD', 'XDR', 'XOF', 'XPD', 'XPF', 'XPT', 'XSU', 'XTS', 'XUA', 'XXX', 'YER', 'ZAR', 'ZMW', 'ZWL'
 	],
 	webRoot: process.env.CT_API_SERVER_WEBROOT || null,
+	logs: {
+		interval: 5 * 60 *1000,
+	},
 	primus: {
 		pathname: '/primus',
 		transformer: 'uws',
@@ -18,20 +21,32 @@ var config = module.exports = {
 	},
 	zeromq: process.env.CT_API_SERVER_ZEROMQ ? JSON.parse(process.env.CT_API_SERVER_ZEROMQ) : {
 	// Examples as follows:
-	/*
-		bitcoin: [
-			'tcp://127.0.0.1:7000',
-		],
-		bitcoinTestnet: [
-			'tcp://127.0.0.1:7010',
-		],
-		litecoin: [
-			'tcp://127.0.0.1:7020',
-		],
-		litecoinTestnet: [
-			'tcp://127.0.0.1:7030',
-		],
-	*/
+	// /*
+		// bitcoin: [
+		// 	{
+		// 		dataUrl: 'tcp://127.0.0.1:7000',
+		// 		statusUrl: 'https://bitcoind-1.cryptoterminal.eu/status.json'
+		// 	},
+		// ],
+		// bitcoinTestnet: [
+		// 	{
+		// 		dataUrl:'tcp://127.0.0.1:7010',
+		// 		statusUrl: 'https://bitcoind-2.cryptoterminal.eu/status.json'
+		// 	}
+		// ],
+		// litecoin: [
+		// 	{
+		// 		dataUrl: 'tcp://127.0.0.1:7020',
+		// 		statusUrl: 'https://bitcoind-3.cryptoterminal.eu/status.json'
+		// 	}
+		// ],
+		// litecoinTestnet: [
+		// 	{
+		// 		dataUrl: 'tcp://127.0.0.1:7030',
+		// 		statusUrl: 'https://bitcoind-4.cryptoterminal.eu/status.json'
+		// 	}
+		// ],
+	// */
 	},
 	bitcoin: {
 		rebroadCastRecentTxs: {
