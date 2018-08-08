@@ -27,12 +27,20 @@ describe('socket.channel: v1/new-txs?address=ADDRESS&network=NETWORK', function(
 
 	var network = 'bitcoin';
 	var instance;
+	var service = app.services.bitcoindZeroMQ;
 	before(function() {
-		instance = app.services.blockCypher.addInstance({}, network);
+		instance = new app.lib.BitcoindZeroMQ({
+			network: network,
+		});
+		instance.on('tx', function(tx) {
+			tx = _.pick(tx, 'address', 'amount', 'txid');
+			service.emit('tx:' + network, tx);
+		});
+		service.instances.push(instance);
 	});
 
-	after(function(done) {
-		instance.close(done);
+	after(function() {
+		instance.close();
 	});
 
 	describe('client subscribed to new transactions channel', function() {
