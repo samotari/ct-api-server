@@ -20,33 +20,25 @@ var config = module.exports = {
 		pingInterval: 5000,
 	},
 	zeromq: process.env.CT_API_SERVER_ZEROMQ ? JSON.parse(process.env.CT_API_SERVER_ZEROMQ) : {
-	// Examples as follows:
-	// /*
+		// Examples as follows:
 		// bitcoin: [
 		// 	{
-		// 		dataUrl: 'tcp://127.0.0.1:7000',
-		// 		statusUrl: 'https://bitcoind-1.cryptoterminal.eu/status.json'
+		// 		dataUrl: 'tcp://127.0.0.1:7001',
+		// 		statusUrl: 'https://bitcoin-node-status-url',
 		// 	},
 		// ],
 		// bitcoinTestnet: [
 		// 	{
-		// 		dataUrl:'tcp://127.0.0.1:7010',
-		// 		statusUrl: 'https://bitcoind-2.cryptoterminal.eu/status.json'
-		// 	}
+		// 		dataUrl:'tcp://127.0.0.1:7002',
+		// 		statusUrl: 'https://bitcoin-testnet-node-status-url',
+		// 	},
 		// ],
 		// litecoin: [
 		// 	{
-		// 		dataUrl: 'tcp://127.0.0.1:7020',
-		// 		statusUrl: 'https://bitcoind-3.cryptoterminal.eu/status.json'
-		// 	}
+		// 		dataUrl: 'tcp://127.0.0.1:7003',
+		// 		statusUrl: 'https://litecoin-node-status-url',
+		// 	},
 		// ],
-		// litecoinTestnet: [
-		// 	{
-		// 		dataUrl: 'tcp://127.0.0.1:7030',
-		// 		statusUrl: 'https://bitcoind-4.cryptoterminal.eu/status.json'
-		// 	}
-		// ],
-	// */
 	},
 	bitcoin: {
 		rebroadCastRecentTxs: {
