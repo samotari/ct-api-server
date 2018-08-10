@@ -12,7 +12,11 @@ var config = module.exports = {
 	],
 	webRoot: process.env.CT_API_SERVER_WEBROOT || null,
 	logs: {
-		interval: 5 * 60 *1000,
+		frequency: 5 * 60 * 1000,
+	},
+	statusProviding: {
+		init: typeof process.env.CT_API_SERVER_STATUS_PROVIDING_INIT !== 'undefined' ? process.env.CT_API_SERVER_STATUS_PROVIDING_INIT !== 'false' : true,
+		frequency: 10 * 1000,
 	},
 	primus: {
 		pathname: '/primus',
