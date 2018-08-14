@@ -225,6 +225,23 @@ module.exports = function(app) {
 		})();
 	};
 
+	var startProvidingStatus = function() {
+		(function provideStatus() {
+			var statuses = app.providers.statusCheck.getStatuses();
+			var networks = _.keys(app.lib.BitcoindZeroMQ.prototype.networks);
+
+			_.each(networks, function(network) {
+				var channel = 'status-check?' + querystring.stringify({
+					network: network
+				});
+				var status = _.pick(statuses, network);
+				cache[channel] = status;
+				broadcastToChannel(channel, status);
+			});
+			_.delay(provideStatus, app.config.statusProviding.frequency);
+		})();
+	}
+
 	var savePrimusClientLibraryToFile = function(filePath, cb) {
 		try {
 			var fs = require('fs');
@@ -261,6 +278,10 @@ module.exports = function(app) {
 
 	app.onStart(function(done) {
 
+		if (app.config.statusProviding.init === true) {
+			startProvidingStatus();
+		}
+
 		if (app.config.exchangeRates.polling.init === true) {
 			startPollingExchangeRates();
 		}
@@ -277,5 +298,6 @@ module.exports = function(app) {
 		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		startPollingExchangeRates: startPollingExchangeRates,
 		startPollingMoneroTxs: startPollingMoneroTxs,
+		startProvidingStatus: startProvidingStatus,
 	};
 };

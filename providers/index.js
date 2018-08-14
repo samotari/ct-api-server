@@ -8,5 +8,6 @@ module.exports = function(app) {
 		exchangeRates: require('./exchange-rates')(app),
 		litecoin: app.lib.BitcoinProvider('litecoin')(app),
 		monero: require('./monero')(app),
+		statusCheck: require('./status-check')(app),
 	};
 };

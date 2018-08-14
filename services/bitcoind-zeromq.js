@@ -31,7 +31,7 @@ module.exports = function(app) {
 			var isActive = instance.active === true;
 			app.log('ZeroMQ connection status (' + url + '):', isActive ? 'ACTIVE' : 'INACTIVE');
 		});
-	}, app.config.logs.interval);
+	}, app.config.logs.frequency);
 
 	return service;
 };
