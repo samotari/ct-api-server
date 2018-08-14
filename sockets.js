@@ -225,18 +225,31 @@ module.exports = function(app) {
 		})();
 	};
 
+	var getPaymentMethodStatuses = function() {
+		var service = app.services.bitcoindZeroMQ;
+		var networks = _.keys(app.lib.BitcoindZeroMQ.prototype.networks);
+		return _.chain(networks).map(function(network) {
+			var instances = _.filter(service.instances, function(instance) {
+				return instance.active === true && instance.options.network === network;
+			});
+			return [network, instances.length > 0];
+		}).object().value();
+	};
+
 	var startProvidingStatus = function() {
 		(function provideStatus() {
-			var statuses = app.providers.statusCheck.getStatuses();
-			var networks = _.keys(app.lib.BitcoindZeroMQ.prototype.networks);
-
-			_.each(networks, function(network) {
+			var statuses = getPaymentMethodStatuses();
+			_.each(statuses, function(status, network) {
 				var channel = 'status-check?' + querystring.stringify({
 					network: network
 				});
-				var status = _.pick(statuses, network);
-				cache[channel] = status;
-				broadcastToChannel(channel, status);
+				var data = {};
+				data[network] = status;
+				// Send to client only if status has changed.
+				if (!_.isEqual(cache[channel], data)) {
+					cache[channel] = data;
+					broadcastToChannel(channel, data);
+				}
 			});
 			_.delay(provideStatus, app.config.statusProviding.frequency);
 		})();
@@ -294,6 +307,7 @@ module.exports = function(app) {
 		cache: cache,
 		channelHasParticipants: channelHasParticipants,
 		channels: channels,
+		getPaymentMethodStatuses: getPaymentMethodStatuses,
 		primus: primus,
 		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		startPollingExchangeRates: startPollingExchangeRates,

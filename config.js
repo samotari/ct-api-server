@@ -16,7 +16,7 @@ var config = module.exports = {
 	},
 	statusProviding: {
 		init: typeof process.env.CT_API_SERVER_STATUS_PROVIDING_INIT !== 'undefined' ? process.env.CT_API_SERVER_STATUS_PROVIDING_INIT !== 'false' : true,
-		frequency: 10 * 1000,
+		frequency: 1000,
 	},
 	primus: {
 		pathname: '/primus',
