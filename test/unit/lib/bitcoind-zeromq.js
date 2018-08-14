@@ -134,9 +134,9 @@ describe('BitcoindZeroMQ', function() {
 			status = active ? 200 : 404;
 		}
 
-		before(function() {
+		before(function(done) {
 			var tmpApp = express();
-			server = tmpApp.listen(port, 'localhost');
+			server = tmpApp.listen(port, 'localhost', done);
 			tmpApp.get('/', function(req, res, next) {
 				res.sendStatus(status);
 			})
