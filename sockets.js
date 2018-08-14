@@ -235,8 +235,11 @@ module.exports = function(app) {
 					network: network
 				});
 				var status = _.pick(statuses, network);
-				cache[channel] = status;
-				broadcastToChannel(channel, status);
+				// Send to client only if status has changed.
+				if (!_.isEqual(cache[channel], status)) {
+					cache[channel] = status;
+					broadcastToChannel(channel, status);
+				}
 			});
 			_.delay(provideStatus, app.config.statusProviding.frequency);
 		})();
