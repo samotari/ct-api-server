@@ -210,19 +210,30 @@ module.exports = function(app) {
 		})();
 	};
 
+	var exchangeRatesPollingTimeout, doPollingExchangeRates;
 	var startPollingExchangeRates = function() {
+		doPollingExchangeRates = true;
 		(function getExchangeRates() {
+			if (!doPollingExchangeRates) return;
 			app.providers.exchangeRates(function(error, data) {
+				var delay;
 				if (error) {
-					app.error(error);
-					return _.delay(getExchangeRates, app.config.exchangeRates.polling.retryDelayOnError);
+					app.log(error);
+					delay = app.config.exchangeRates.polling.retryDelayOnError;
+				} else {
+					var channel = 'exchange-rates';
+					cache[channel] = data;
+					broadcastToChannel(channel, data);
+					delay = app.config.exchangeRates.polling.frequency;
 				}
-				var channel = 'exchange-rates';
-				cache[channel] = data;
-				broadcastToChannel(channel, data);
-				_.delay(getExchangeRates, app.config.exchangeRates.polling.frequency);
+				exchangeRatesPollingTimeout = _.delay(getExchangeRates, delay);
 			});
 		})();
+	};
+
+	var stopPollingExchangeRates = function() {
+		doPollingExchangeRates = false;
+		clearTimeout(exchangeRatesPollingTimeout);
 	};
 
 	var getPaymentMethodStatuses = function() {
@@ -311,6 +322,7 @@ module.exports = function(app) {
 		primus: primus,
 		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		startPollingExchangeRates: startPollingExchangeRates,
+		stopPollingExchangeRates: stopPollingExchangeRates,
 		startPollingMoneroTxs: startPollingMoneroTxs,
 		startProvidingStatus: startProvidingStatus,
 	};
