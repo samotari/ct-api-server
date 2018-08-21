@@ -170,14 +170,6 @@ module.exports = function(app) {
 				txid: tx.txid,
 			};
 			broadcastToChannel(channel, data);
-
-			// Keep the following for temporary backwards compatibility.
-			var legacyChannel = 'address-balance-updates?' + querystring.stringify({
-				address: tx.address,
-				method: network,
-			});
-			var legacyData = { amount_received: tx.amount };
-			broadcastToChannel(legacyChannel, legacyData);
 		});
 	});
 

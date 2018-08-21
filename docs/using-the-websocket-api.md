@@ -36,7 +36,7 @@ List of all available websocket channels.
 
 * [Exchange Rates](#exchange-rates) - Get exchange rate data.
 * Bitcoin, Litecoin:
-  * [Address Balance Updates](#address-balance-updates) - Get new amounts received by an individual address.
+  * [New Transactions](#new-transactions) - Get new transactions received by an address.
 * Monero:
   * [Get Monero Transactions](#get-monero-transactions) - Get recent transactions (from recent blocks and the memory pool).
 
@@ -76,22 +76,22 @@ Sample data:
 ```
 
 
-### Address Balance Updates
+### New Transactions
 
-Get new amounts received by an individual address.
+Get new transactions received by an address.
 
-`address-balance-updates?address=<ADDRESS>&method=<METHOD>`
+`v1/new-txs?address=<ADDRESS>&network=<NETWORK>`
 
 Parameters:
 * _address_ - The address that you are interested in.
-* _method_ - Payment method (network) to listen to. This can be `bitcoin`, `bitcoinTestnet`, or `litecoin`.
+* _network_ - Payment method (network) to listen to. This can be `bitcoin`, `bitcoinTestnet`, or `litecoin`.
 
 Subscribe to channel:
 ```js
 var querystring = require('querystring');
-var channel = 'address-balance-updates?' + querystring.stringify({
+var channel = 'v1/new-txs?' + querystring.stringify({
 	address: address,
-	method: 'bitcoin'
+	network: 'bitcoin'
 });
 
 primus.write({
@@ -109,7 +109,8 @@ primus.on('data', function(data) {
 Sample data:
 ```json
 {
-	"amount_received": 50000000
+	"amount": 50000000,
+	"txid": "522f87xb689c33a8306b8e6aacb7917f076536bb1ab57a274e3ee92b7b2d1be0"
 }
 ```
 Note that amounts are in whole [satoshis](https://en.bitcoin.it/wiki/Satoshi_(unit)).
