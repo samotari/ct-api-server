@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 var _ = require('underscore');
 var async = require('async');
+var express = require('express');
 var app = require('../');
 
 var manager = module.exports = {
@@ -70,11 +71,33 @@ var manager = module.exports = {
 	},
 
 	waitFor: function(test, cb) {
+
 		async.until(
 			test,
 			function(next) { _.delay(next, 5) },
 			cb
 		);
+	},
+
+	createMockServer: function(port, host, cb) {
+
+		if (_.isFunction(host)) {
+			cb = host;
+			host = null;
+		}
+
+		host = host || 'localhost';
+
+		var mock = express();
+		mock.server = mock.listen(port, host, function(error) {
+			if (error) return cb(error);
+			var address = mock.server.address();
+			var host = address.address;
+			var port = address.port;
+			var baseUrl = 'http://' + host + ':' + port;
+			cb(null, baseUrl);
+		});
+		return mock;
 	},
 
 };

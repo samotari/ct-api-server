@@ -2,6 +2,9 @@
 
 module.exports = function(app) {
 
-	require('./status')(app);
+	require('./fee-rate')(app);
 	require('./monero')(app);
+	require('./raw-tx')(app);
+	require('./status')(app);
+	require('./utxo')(app);
 };

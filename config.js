@@ -23,6 +23,13 @@ var config = module.exports = {
 		transformer: 'websockets',
 		pingInterval: 5000,
 	},
+	electrum: process.env.CT_API_SERVER_ELECTRUM ? JSON.parse(process.env.CT_API_SERVER_ELECTRUM) : {
+		// bitcoinTestnet: {
+		// 	uri: 'http://localhost:8332',
+		// 	username: 'example',
+		// 	password: '12345',
+		// },
+	},
 	zeromq: process.env.CT_API_SERVER_ZEROMQ ? JSON.parse(process.env.CT_API_SERVER_ZEROMQ) : {
 		// Examples as follows:
 		// bitcoin: [
