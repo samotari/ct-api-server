@@ -7,7 +7,7 @@ var express = require('express');
 var zmq = require('zeromq');
 
 var manager = require('../../manager');
-var app = manager.app();
+var app = manager.app;
 var BitcoindZeroMQ = app.lib.BitcoindZeroMQ;
 
 describe('BitcoindZeroMQ', function() {

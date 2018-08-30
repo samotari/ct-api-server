@@ -7,31 +7,16 @@ if (process.env.NODE_ENV !== 'test') {
 var _ = require('underscore');
 var async = require('async');
 var app = require('../');
-var Client = require('./client');
 
 var manager = module.exports = {
 
+	app: app,
 	config: app.config,
 	fixtures: require('./fixtures'),
 
 	url: function(uri) {
 
 		return 'http://' + manager.config.host + ':' + manager.config.port + uri;
-	},
-
-	app: function() {
-
-		return app;
-	},
-
-	client: function(options) {
-
-		options = _.defaults(options || {}, {
-			host: app.config.host,
-			port: app.config.port
-		});
-
-		return new Client(options);
 	},
 
 	socketClient: function(options) {

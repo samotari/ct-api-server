@@ -4,7 +4,7 @@ var _ = require('underscore');
 var expect = require('chai').expect;
 
 var manager = require('../../manager');
-var app = manager.app();
+var app = manager.app;
 
 describe('socket', function() {
 

@@ -1,35 +1,26 @@
 'use strict';
 
 var _ = require('underscore');
-var expect = require('chai').expect;
-
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var expect = chai.expect;
 var manager = require('../../manager');
-var app = manager.app();
+var app = manager.app;
 
-var verb = 'GET';
+chai.use(chaiHttp);
+
+var verb = 'get';
 var uri = '/api/v1/status';
 
-describe([verb, uri].join(' '), function() {
-
-	var client;
-
-	before(function() {
-		client = manager.client();
-	});
+describe([verb.toUpperCase(), uri].join(' '), function() {
 
 	it('OK', function(done) {
 
-		client[verb](uri, function(error, data, status, headers) {
-
-			try {
-				expect(error).to.equal(null);
-				expect(status).to.equal(200);
-				expect(data).to.be.an('object');
-				expect(data.status).to.equal('OK');
-			} catch (error) {
-				return done(error);
-			}
-
+		chai.request(app)[verb](uri).end(function(error, response) {
+			expect(error).to.be.null;
+			expect(response).to.have.status(200);
+			expect(response.body).to.be.an('object');
+			expect(response.body.status).to.equal('OK');
 			done();
 		});
 	});

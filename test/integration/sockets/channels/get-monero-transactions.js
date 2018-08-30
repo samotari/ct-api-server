@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 var express = require('express');
 
 var manager = require('../../../manager');
-var app = manager.app();
+var app = manager.app;
 
 describe('socket.channel: get-monero-transactions?networkName=testnet', function() {
 

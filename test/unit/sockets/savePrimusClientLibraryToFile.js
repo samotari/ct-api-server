@@ -6,7 +6,7 @@ var fs = require('fs');
 var path = require('path');
 
 var manager = require('../../manager');
-var app = manager.app();
+var app = manager.app;
 
 describe('sockets', function() {
 

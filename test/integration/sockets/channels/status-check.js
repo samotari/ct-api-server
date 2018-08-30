@@ -6,7 +6,7 @@ var express = require('express');
 var querystring = require('querystring');
 
 var manager = require('../../../manager');
-var app = manager.app();
+var app = manager.app;
 var BitcoindZeroMQ = app.lib.BitcoindZeroMQ;
 
 describe('socket.channel: status-check', function() {

@@ -6,7 +6,7 @@ var expect = require('chai').expect;
 var querystring = require('querystring');
 
 var manager = require('../../../manager');
-var app = manager.app();
+var app = manager.app;
 
 describe('socket.channel: address-balance-updates?address=ADDRESS&method=NETWORK', function() {
 

@@ -1,21 +1,19 @@
 'use strict';
 
-var expect = require('chai').expect;
+var _ = require('underscore');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var expect = chai.expect;
 var express = require('express');
 var querystring = require('querystring');
 
 var manager = require('../../../manager');
-var app = manager.app();
+var app = manager.app;
 
-var verb = 'GET';
+var verb = 'get';
 var uri = '/api/v1/monero/outputs';
 
-describe([verb, uri].join(' '), function() {
-
-	var client;
-	before(function() {
-		client = manager.client();
-	});
+describe([verb.toUpperCase(), uri].join(' '), function() {
 
 	var port = 3700;
 	var server;
@@ -44,25 +42,19 @@ describe([verb, uri].join(' '), function() {
 
 		var fullUri = uri + '?' + querystring.stringify(params);
 
-		client[verb](fullUri, function(error, data, status, headers) {
-
-			try {
-				expect(error).to.equal(null);
-				expect(status).to.equal(200);
-				expect(data).to.be.an('object');
-				expect(data.data).to.be.an('object');
-				expect(data.status).to.be.equal('success');
-				expect(data.data.outputs).to.be.an('array');
-				expect(data.data.outputs[0]).to.be.an('object');
-				expect(data.data.outputs[0]).to.have.property('amount');
-				expect(data.data.outputs[0]).to.have.property('match');
-				expect(data.data.outputs[0]).to.have.property('output_idx');
-				expect(data.data.outputs[0]).to.have.property('output_pubkey');
-				expect(data.data.viewkey).to.be.equal(params.viewkey);
-			} catch (error) {
-				return done(error);
-			}
-
+		chai.request(app)[verb](fullUri).end(function(error, response) {
+			expect(error).to.be.null;
+			expect(response).to.have.status(200);
+			expect(response.body).to.be.an('object');
+			expect(response.body.data).to.be.an('object');
+			expect(response.body.status).to.be.equal('success');
+			expect(response.body.data.outputs).to.be.an('array');
+			expect(response.body.data.outputs[0]).to.be.an('object');
+			expect(response.body.data.outputs[0]).to.have.property('amount');
+			expect(response.body.data.outputs[0]).to.have.property('match');
+			expect(response.body.data.outputs[0]).to.have.property('output_idx');
+			expect(response.body.data.outputs[0]).to.have.property('output_pubkey');
+			expect(response.body.data.viewkey).to.be.equal(params.viewkey);
 			done();
 		});
 	});
