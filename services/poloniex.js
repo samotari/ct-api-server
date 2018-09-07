@@ -37,6 +37,10 @@ module.exports = function(app) {
 					return cb(error);
 				}
 
+				if (response.statusCode >= 400) {
+					return cb(new Error('Failed to get exchange rates from poloniex (HTTP ' + response.statusCode + ')'))
+				}
+
 				try {
 					data = JSON.parse(data);
 				} catch (error) {

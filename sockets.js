@@ -210,7 +210,8 @@ module.exports = function(app) {
 		})();
 	};
 
-	var exchangeRatesPollingTimeout, doPollingExchangeRates;
+	var exchangeRatesPollingTimeout;
+	var doPollingExchangeRates;
 	var startPollingExchangeRates = function() {
 		doPollingExchangeRates = true;
 		(function getExchangeRates() {
