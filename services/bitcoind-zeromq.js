@@ -17,7 +17,7 @@ module.exports = function(app) {
 				statusUrl: url.statusUrl
 			});
 			instance.on('tx', function(tx) {
-				tx = _.pick(tx, 'address', 'amount', 'txid');
+				tx = _.pick(tx, 'address', 'amount', 'txid', 'isReplaceable');
 				service.emit('tx:' + network, tx);
 			});
 			service.instances.push(instance);

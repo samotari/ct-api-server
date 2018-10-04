@@ -168,6 +168,7 @@ module.exports = function(app) {
 			var data = {
 				amount: tx.amount,
 				txid: tx.txid,
+				isReplaceable: tx.isReplaceable,
 			};
 			broadcastToChannel(channel, data);
 		});
