@@ -154,7 +154,7 @@ module.exports = function(app) {
 
 	var cache = {};
 
-	_.each(['bitcoin', 'bitcoinTestnet', 'litecoin'], function(network) {
+	_.each(['bitcoin', 'bitcoinTestnet', 'bitcore', 'litecoin'], function(network) {
 
 		var provider = app.providers[network];
 

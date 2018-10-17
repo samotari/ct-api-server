@@ -35,7 +35,7 @@ Once you have connected to the server, you can subscribe to a channel to receive
 List of all available websocket channels.
 
 * [Exchange Rates](#exchange-rates) - Get exchange rate data.
-* Bitcoin, Litecoin:
+* Bitcoin, Bitcore, Litecoin:
   * [New Transactions](#new-transactions) - Get new transactions received by an address.
 * Monero:
   * [Get Monero Transactions](#get-monero-transactions) - Get recent transactions (from recent blocks and the memory pool).
@@ -67,6 +67,7 @@ Sample data:
 ```json
 {
 	"BTC": "1.00000000",
+	"BTX": "10117.51",
 	"CZK": "165860.36",
 	"EUR": "6583.00",
 	"LTC": "59.11912504",
@@ -84,7 +85,7 @@ Get new transactions received by an address.
 
 Parameters:
 * _address_ - The address that you are interested in.
-* _network_ - Payment method (network) to listen to. This can be `bitcoin`, `bitcoinTestnet`, or `litecoin`.
+* _network_ - Payment method (network) to listen to. This can be `bitcoin`, `bitcoinTestnet`, `bitcore`, or `litecoin`.
 
 Subscribe to channel:
 ```js

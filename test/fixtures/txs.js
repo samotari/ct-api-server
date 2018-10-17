@@ -39,6 +39,22 @@ module.exports = [
 			},
 		],
 	},
+        {
+                rawTx: '0200000001c4ca4a0aeb849ba1161778254052e587ed1d7a43da44908e5d3d97297d657f82000000006b483045022100b3858454a415a03bb8e710872de91409036b2c248a69b1e20f28ff9dba94d76b02201db940a9494b5423cd15ec04e7a4a1084d8ff2645b2ddf2570f2830c65f09872012103d84331ef33604b76e08df129bc6f623ee850f65891d29b5cf2fcb097b84837dffeffffff02d8642500000000001976a91409916d79ec1661539bda7f7545d47b002b0a429d88aceca07a12000000001976a9141688bfff50ea0a43ec6d325dc8cff3bbf6e7286d88ac09b80000',
+                network: 'bitcore',
+                outputs: [
+                        {
+                                address: '2DtQFYS2C2MQ4je7NgrL6ZM6WrjsqWp7hs',
+                                amount: 2450648,
+                                txid: '055ffb61dc938b5db218b202bf6c621467991e308dbf0101787e5fea9de50917',
+                        },
+                        {
+                                address: '2F4xe6uizLgbRDS9BSbzgpGD7MAUrJq4Pt',
+                                amount: 310026476,
+                                txid: '055ffb61dc938b5db218b202bf6c621467991e308dbf0101787e5fea9de50917',
+                        },
+                ],
+        },
 	{
 		rawTx: '02000000015e6b5f424af9260976d232d80c44151ab24b1b2630ff231a12dadc737e1cc941020000006b483045022100b201f4939181acacdba011d643ab0900fc86ab6b1e24f169dbeff61789426728022059a1cdab1e29724c2edb14ac2176fdd8c0a6d6015208663a956c85e715ba1b0f012103d55078b05e2144ac60578f23de6e59ff17c8cda921c441e73a436127a9cc9dadffffffff0234d3dad1070000001976a914b85135fd4a0356bb5e8c795739997f031ab85f9b88ac70c4217f0200000017a9149d14529f93b2d52d561a6db88f52c83a5ef34ec68700000000',
 		network: 'litecoin',
