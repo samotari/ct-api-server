@@ -6,21 +6,21 @@
   "main": "server.js",
   "dependencies": {
     "async": "2.6.1",
-    "bignumber.js": "7.2.1",
-    "bitcoinjs-lib": "4.0.1",
+    "bignumber.js": "8.0.1",
+    "bitcoinjs-lib": "4.0.2",
     "body-parser": "1.18.3",
-    "express": "4.16.3",
+    "express": "4.16.4",
     "mkdirp": "0.5.1",
-    "moment": "2.22.2",
-    "primus": "7.2.2",
-    "request": "2.87.0",
-    "uglify-js": "3.4.6",
+    "moment": "2.23.0",
+    "primus": "7.3.2",
+    "request": "2.88.0",
+    "uglify-js": "3.4.9",
     "underscore": "1.9.1",
-    "ws": "6.0.0",
-    "zeromq": "4.6.0"
+    "ws": "6.1.2",
+    "zeromq": "5.1.0"
   },
   "devDependencies": {
-    "chai": "4.1.2",
+    "chai": "4.2.0",
     "chai-http": "4.2.0"
   },
   "scripts": {
