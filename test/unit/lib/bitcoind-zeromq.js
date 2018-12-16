@@ -127,23 +127,27 @@ describe('BitcoindZeroMQ', function() {
 
 	describe('status check', function() {
 
-		var port = 3700;
 		var server;
 		var status = 200;
 		var setState = function(active) {
 			status = active ? 200 : 404;
-		}
+		};
 
+		var mock;
 		before(function(done) {
-			var tmpApp = express();
-			server = tmpApp.listen(port, 'localhost', done);
-			tmpApp.get('/', function(req, res, next) {
-				res.sendStatus(status);
-			})
-		})
+			mock = manager.createMockServer(function(error, baseUrl) {
+				if (error) return done(error);
+				mock.get('/', function(req, res, next) {
+					res.sendStatus(status);
+				});
+				done();
+			});
+		});
 
 		var instance;
 		before(function() {
+			var address = mock.server.address();
+			var port = address.port;
 			var statusUrl = 'http://localhost:' + port;
 			instance = new BitcoindZeroMQ({
 				network: {},
@@ -154,10 +158,6 @@ describe('BitcoindZeroMQ', function() {
 
 		after(function() {
 			instance.close();
-		});
-
-		after(function() {
-			server.close();
 		});
 
 		describe('when instance is active and goes inactive', function() {

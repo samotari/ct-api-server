@@ -12,16 +12,19 @@ var BitcoindZeroMQ = app.lib.BitcoindZeroMQ;
 describe('socket.channel: status-check', function() {
 
 	var networks = _.keys(BitcoindZeroMQ.prototype.networks);
-
-	var server;
-	var port = 3700;
 	var status = 200;
+	var port;
+
 	before(function(done) {
-		var tmpApp = express();
-		server = tmpApp.listen(port, 'localhost', done);
-		tmpApp.get('/', function(req, res, next) {
-			res.sendStatus(status);
-		})
+		var mock = manager.createMockServer(function(error, baseUrl) {
+			if (error) return done(error);
+			mock.get('/', function(req, res, next) {
+				res.sendStatus(status);
+			});
+			var address = mock.server.address();
+			port = address.port;
+			done();
+		});
 	});
 
 	var client;
@@ -60,11 +63,6 @@ describe('socket.channel: status-check', function() {
 
 	afterEach(function() {
 		_.invoke(service.instances, 'close');
-	});
-
-	after(function() {
-		server.close();
-		server = null;
 	});
 
 	it('receive status for all the networks', function(done) {

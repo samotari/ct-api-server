@@ -7,6 +7,9 @@ module.exports = function(app) {
 
 	var service = _.extend({}, {
 		instances: [],
+		close: function() {
+			_.invoke(this.instances, 'close');
+		},
 	}, EventEmitter.prototype);
 
 	_.each(app.config.zeromq, function(socketUrls, network) {
