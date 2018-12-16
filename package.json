@@ -24,7 +24,9 @@
     "chai-http": "4.2.0"
   },
   "scripts": {
+    "lint": "eslint --config .eslintrc.js *.js controllers/**/*.js lib/**/*.js middleware/**/*.js providers/**/*.js services/**/*.js test/**/*.js",
     "prepublish": "npm run test # runs before `npm publish`",
+    "pretest": "npm run lint # runs before `npm test`",
     "start": "node server.js",
     "test": "npm run test:unit && npm run test:integration",
     "test:integration": "mocha test/integration/ --recursive --reporter spec --ui bdd --exit",
