@@ -137,7 +137,7 @@ module.exports = function(app) {
 	});
 
 	// Periodically clean-up the channels object.
-	setInterval(function() {
+	var cleanChannelsInterval = setInterval(function() {
 		channels = _.chain(channels).map(function(idsHash, channel) {
 			idsHash = _.chain(idsHash).map(function(value, id) {
 				return !_.isNull(value) ? [id, true]: null;
@@ -175,15 +175,12 @@ module.exports = function(app) {
 	});
 
 	var moneroPollingTimeout;
-
-	var stopPollingMoneroTxs = function() {
-		clearTimeout(moneroPollingTimeout);
-		moneroPollingTimeout = null;
-	};
-
+	var doPollingMoneroTxs;
 	var startPollingMoneroTxs = function() {
 		if (moneroPollingTimeout) return;
+		doPollingMoneroTxs = true;
 		(function getMoneroTxs() {
+			if (!doPollingMoneroTxs) return;
 			async.each(['testnet', 'mainnet'], function(network, next) {
 				app.providers.monero.getTransactions(network, function(error, data) {
 					if (error) {
@@ -201,6 +198,11 @@ module.exports = function(app) {
 				moneroPollingTimeout = _.delay(getMoneroTxs, app.config.moneroTxs.polling.frequency);
 			});
 		})();
+	};
+
+	var stopPollingMoneroTxs = function() {
+		doPollingMoneroTxs = false;
+		clearTimeout(moneroPollingTimeout);
 	};
 
 	var exchangeRatesPollingTimeout;
@@ -241,8 +243,12 @@ module.exports = function(app) {
 		}).object().value();
 	};
 
+	var providingStatusTimeout;
+	var doProvidingStatus;
 	var startProvidingStatus = function() {
+		doProvidingStatus = true;
 		(function provideStatus() {
+			if (!doProvidingStatus) return;
 			var statuses = getPaymentMethodStatuses();
 			_.each(statuses, function(status, network) {
 				var channel = 'status-check?' + querystring.stringify({
@@ -256,9 +262,14 @@ module.exports = function(app) {
 					broadcastToChannel(channel, data);
 				}
 			});
-			_.delay(provideStatus, app.config.statusProviding.frequency);
+			providingStatusTimeout = _.delay(provideStatus, app.config.statusProviding.frequency);
 		})();
-	}
+	};
+
+	var stopProvidingStatus = function() {
+		doProvidingStatus = false;
+		clearTimeout(providingStatusTimeout);
+	};
 
 	var savePrimusClientLibraryToFile = function(filePath, cb) {
 		try {
@@ -312,12 +323,38 @@ module.exports = function(app) {
 		cache: cache,
 		channelHasParticipants: channelHasParticipants,
 		channels: channels,
+		close: function(done) {
+			async.parallel([
+				function(next) {
+					try {
+						clearInterval(cleanChannelsInterval);
+						stopPollingExchangeRates();
+						stopPollingMoneroTxs();
+						stopProvidingStatus();
+						_.each(['bitcoin', 'bitcoinTestnet', 'litecoin'], function(network) {
+							var provider = app.providers[network];
+							if (provider) {
+								provider.close();
+							}
+						});
+					} catch (error) {
+						return next(error);
+					}
+					next();
+				},
+				function(next) {
+					primus.destroy(next);
+				},
+			], done);
+		},
 		getPaymentMethodStatuses: getPaymentMethodStatuses,
 		primus: primus,
 		savePrimusClientLibraryToFile: savePrimusClientLibraryToFile,
 		startPollingExchangeRates: startPollingExchangeRates,
 		stopPollingExchangeRates: stopPollingExchangeRates,
 		startPollingMoneroTxs: startPollingMoneroTxs,
+		stopPollingMoneroTxs: stopPollingMoneroTxs,
 		startProvidingStatus: startProvidingStatus,
+		stopProvidingStatus: stopProvidingStatus,
 	};
 };

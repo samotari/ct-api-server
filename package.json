@@ -21,17 +21,14 @@
   },
   "devDependencies": {
     "chai": "4.1.2",
-    "chai-http": "4.2.0",
-    "grunt": "1.0.3",
-    "grunt-env": "0.4.4",
-    "grunt-mocha-test": "0.13.3",
-    "load-grunt-config": "0.19.2",
-    "mocha": "5.2.0",
-    "time-grunt": "1.4.0"
+    "chai-http": "4.2.0"
   },
   "scripts": {
-    "test": "grunt test",
-    "start": "node server.js"
+    "prepublish": "npm run test # runs before `npm publish`",
+    "start": "node server.js",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:integration": "mocha test/integration/ --recursive --reporter spec --ui bdd --exit",
+    "test:unit": "mocha test/unit/ --recursive --reporter spec --ui bdd --exit"
   },
   "repository": {
     "type": "git",

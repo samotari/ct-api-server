@@ -6,6 +6,7 @@ var pkg = require('./package.json');
 // Change hyphens ("-") to underscores ("_").
 process.title = pkg.name.replace(/-/g, '_');
 
+var async = require('async');
 var express = require('express');
 var app = module.exports = express();
 app.disable('x-powered-by');
@@ -64,6 +65,21 @@ app.use(function(error, req, res, next) {
 
 	next();
 });
+
+app.close = function(done) {
+	async.parallel([
+		function(next) {
+			app.server.close(next);
+		},
+		function(next) {
+			app.sockets.close(next);
+		},
+		function(next) {
+			app.services.bitcoindZeroMQ.close();
+			next();
+		},
+	], done);
+};
 
 app.onStart(function(done) {
 	app.server = app.listen(app.config.port, app.config.host, function() {

@@ -21,7 +21,7 @@ describe([verb.toUpperCase(), uri].join(' '), function() {
 
 	var mock;
 	before(function(done) {
-		mock = manager.createMockServer(3700, function(error, baseUrl) {
+		mock = manager.createMockServer(function(error, baseUrl) {
 			if (error) return done(error);
 			mock.post('/', function(req, res, next) {
 				res.status(200).send(JSON.stringify({
@@ -41,7 +41,6 @@ describe([verb.toUpperCase(), uri].join(' '), function() {
 	});
 
 	after(function() {
-		mock.server.close();
 		app.services.electrum.resetInstances();
 		app.config.electrum = {};
 	});
