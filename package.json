@@ -21,16 +21,18 @@
   },
   "devDependencies": {
     "chai": "4.2.0",
-    "chai-http": "4.2.0"
+    "chai-http": "4.2.0",
+    "eslint": "5.11.1",
+    "mocha": "5.2.0"
   },
   "scripts": {
-    "lint": "eslint --config .eslintrc.js *.js controllers/**/*.js lib/**/*.js middleware/**/*.js providers/**/*.js services/**/*.js test/**/*.js",
+    "lint": "node_modules/.bin/eslint --config .eslintrc.js *.js controllers/**/*.js lib/**/*.js middleware/**/*.js providers/**/*.js services/**/*.js test/**/*.js",
     "prepublish": "npm run test # runs before `npm publish`",
     "pretest": "npm run lint # runs before `npm test`",
     "start": "node server.js",
     "test": "npm run test:unit && npm run test:integration",
-    "test:integration": "mocha test/integration/ --recursive --reporter spec --ui bdd --exit",
-    "test:unit": "mocha test/unit/ --recursive --reporter spec --ui bdd --exit"
+    "test:integration": "node_modules/.bin/mocha test/integration/ --recursive --reporter spec --ui bdd --exit",
+    "test:unit": "node_modules/.bin/mocha test/unit/ --recursive --reporter spec --ui bdd --exit"
   },
   "repository": {
     "type": "git",

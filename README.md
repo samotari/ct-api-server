@@ -80,10 +80,6 @@ The above guide can also be used with litecoind.
 
 ### Tests
 
-To run the tests, you will need to install the following:
-* [mocha](https://mochajs.org/) - `npm install -g mocha`
-* [eslint](https://eslint.org/) - `npm install -g eslint`
-
 To run all tests:
 ```
 npm test
