@@ -1,6 +1,10 @@
 # CryptoTerminal API Server
 
-[![Build Status](https://travis-ci.org/samotari/ct-api-server.svg?branch=master)](https://travis-ci.org/samotari/ct-api-server) [![Status of Dependencies](https://david-dm.org/samotari/ct-api-server.svg)](https://david-dm.org/samotari/ct-api-server)
+__No longer maintained__
+
+The CryptoTerminal app no longer requires the CT-API-Server to function. The app now communicates directly with ElectrumX servers.
+
+[![Build Status](https://travis-ci.org/samotari/ct-api-server.svg?branch=master)](https://travis-ci.org/samotari/ct-api-server)
 
 API server for the CryptoTerminal mobile application.
 
